@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.20;
 
-import "../../ISubscriptionService.sol";
+import "../ISubscriptionService.sol";
 
 contract MockSubscriptionService is ISubscriptionService {
     struct Subscription {

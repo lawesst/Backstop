@@ -2,11 +2,11 @@
 
 pragma solidity >=0.8.20;
 
-import "../src/demos/backstop/AaveV3BackstopAdapter.sol";
-import "../src/demos/backstop/AaveV3BackstopExecutor.sol";
-import "../src/demos/backstop/AaveV3Interfaces.sol";
-import "../src/demos/backstop/BackstopVault.sol";
-import "../src/demos/backstop/IERC20Like.sol";
+import "../src/backstop/AaveV3BackstopAdapter.sol";
+import "../src/backstop/AaveV3BackstopExecutor.sol";
+import "../src/backstop/AaveV3Interfaces.sol";
+import "../src/backstop/BackstopVault.sol";
+import "../src/backstop/IERC20Like.sol";
 import "./backstop/BackstopScriptBase.s.sol";
 
 contract SetupBackstopAaveSepolia is BackstopScriptBase {

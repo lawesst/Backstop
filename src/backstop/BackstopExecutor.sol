@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import "../../../lib/reactive-lib/src/abstract-base/AbstractCallback.sol";
+import "../../lib/reactive-lib/src/abstract-base/AbstractCallback.sol";
 import "./BackstopLendingAdapter.sol";
 import "./MockUSDC.sol";
 import "./MockLendingMarket.sol";

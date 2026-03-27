@@ -38,7 +38,7 @@ It watches a borrower's risk on Sepolia, mirrors protection state inside ReactVM
 
 ## Repository Layout
 
-- `src/demos/backstop`
+- `src/backstop`
   - Backstop contracts and project-specific docs
 - `script`
   - Sepolia and Lasna deploy/setup/run scripts
@@ -84,11 +84,11 @@ Then open `http://localhost:4173`.
 
 The Sepolia and Reactive Lasna workflow, deployed addresses, transaction hashes, and live debugging notes are documented in:
 
-- `src/demos/backstop/TESTNET.md`
+- `src/backstop/TESTNET.md`
 
 The contract-level design and project-specific notes live in:
 
-- `src/demos/backstop/README.md`
+- `src/backstop/README.md`
 
 ## Current Live Status
 

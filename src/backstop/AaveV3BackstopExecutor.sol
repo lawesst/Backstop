@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.20;
 
-import "../../../lib/reactive-lib/src/abstract-base/AbstractCallback.sol";
+import "../../lib/reactive-lib/src/abstract-base/AbstractCallback.sol";
 import "./AaveV3BackstopAdapter.sol";
 import "./AaveV3Interfaces.sol";
 import "./IERC20Like.sol";

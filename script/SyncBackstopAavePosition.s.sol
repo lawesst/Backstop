@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.20;
 
-import "../src/demos/backstop/AaveV3BackstopAdapter.sol";
+import "../src/backstop/AaveV3BackstopAdapter.sol";
 import "./backstop/BackstopScriptBase.s.sol";
 
 contract SyncBackstopAavePosition is BackstopScriptBase {

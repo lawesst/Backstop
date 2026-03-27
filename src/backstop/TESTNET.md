@@ -75,7 +75,7 @@ source .env.backstop
 forge create --broadcast \
   --rpc-url "$REACTIVE_RPC" \
   --private-key "$REACTIVE_PRIVATE_KEY" \
-  src/demos/backstop/BackstopReactiveContract.sol:BackstopReactiveContract \
+  src/backstop/BackstopReactiveContract.sol:BackstopReactiveContract \
   --value 0.2ether \
   --constructor-args \
     $BACKSTOP_RESERVE_CHAIN_ID \

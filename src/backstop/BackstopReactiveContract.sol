@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.20;
 
-import "../../../lib/reactive-lib/src/abstract-base/AbstractReactive.sol";
-import "../../../lib/reactive-lib/src/interfaces/IReactive.sol";
+import "../../lib/reactive-lib/src/abstract-base/AbstractReactive.sol";
+import "../../lib/reactive-lib/src/interfaces/IReactive.sol";
 
 contract BackstopReactiveContract is IReactive, AbstractReactive {
     struct ProtectionState {

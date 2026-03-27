@@ -5,13 +5,13 @@ pragma solidity >=0.8.20;
 import "forge-std/Test.sol";
 import "../lib/reactive-lib/src/interfaces/IReactive.sol";
 
-import "../src/demos/backstop/BackstopExecutor.sol";
-import "../src/demos/backstop/BackstopLendingAdapter.sol";
-import "../src/demos/backstop/BackstopReactiveContract.sol";
-import "../src/demos/backstop/BackstopVault.sol";
-import "../src/demos/backstop/IERC20Like.sol";
-import "../src/demos/backstop/MockLendingMarket.sol";
-import "../src/demos/backstop/MockUSDC.sol";
+import "../src/backstop/BackstopExecutor.sol";
+import "../src/backstop/BackstopLendingAdapter.sol";
+import "../src/backstop/BackstopReactiveContract.sol";
+import "../src/backstop/BackstopVault.sol";
+import "../src/backstop/IERC20Like.sol";
+import "../src/backstop/MockLendingMarket.sol";
+import "../src/backstop/MockUSDC.sol";
 
 contract MockSystemContract {
     struct Subscription {

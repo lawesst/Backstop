@@ -128,27 +128,27 @@ The current tests prove:
 
 The repo now includes a Sepolia + Reactive Lasna deployment path:
 
-- [TESTNET.md](/Users/vicgunga/reactive/src/demos/backstop/TESTNET.md)
-- [DeployBackstopSepolia.s.sol](/Users/vicgunga/reactive/script/DeployBackstopSepolia.s.sol)
-- [DeployBackstopLasna.s.sol](/Users/vicgunga/reactive/script/DeployBackstopLasna.s.sol)
-- [ReplayBackstopState.s.sol](/Users/vicgunga/reactive/script/ReplayBackstopState.s.sol)
-- [TriggerBackstopRisk.s.sol](/Users/vicgunga/reactive/script/TriggerBackstopRisk.s.sol)
+- [TESTNET.md](./TESTNET.md)
+- [DeployBackstopSepolia.s.sol](../../script/DeployBackstopSepolia.s.sol)
+- [DeployBackstopLasna.s.sol](../../script/DeployBackstopLasna.s.sol)
+- [ReplayBackstopState.s.sol](../../script/ReplayBackstopState.s.sol)
+- [TriggerBackstopRisk.s.sol](../../script/TriggerBackstopRisk.s.sol)
 
 The latest live proof run and explorer links are recorded in
-[TESTNET.md](/Users/vicgunga/reactive/src/demos/backstop/TESTNET.md).
+[TESTNET.md](./TESTNET.md).
 
 ## Aave Sepolia Path
 
 The repo now also includes a live Aave V3 Sepolia integration path:
 
-- [AaveV3BackstopAdapter.sol](/Users/vicgunga/reactive/src/demos/backstop/AaveV3BackstopAdapter.sol)
-- [AaveV3BackstopExecutor.sol](/Users/vicgunga/reactive/src/demos/backstop/AaveV3BackstopExecutor.sol)
-- [AavePositionMonitorReactiveContract.sol](/Users/vicgunga/reactive/src/demos/backstop/AavePositionMonitorReactiveContract.sol)
-- [DeployBackstopAaveSepolia.s.sol](/Users/vicgunga/reactive/script/DeployBackstopAaveSepolia.s.sol)
-- [DeployBackstopAaveLasna.s.sol](/Users/vicgunga/reactive/script/DeployBackstopAaveLasna.s.sol)
-- [SetupBackstopAaveSepolia.s.sol](/Users/vicgunga/reactive/script/SetupBackstopAaveSepolia.s.sol)
-- [TriggerBackstopAaveRisk.s.sol](/Users/vicgunga/reactive/script/TriggerBackstopAaveRisk.s.sol)
-- [SyncBackstopAavePosition.s.sol](/Users/vicgunga/reactive/script/SyncBackstopAavePosition.s.sol)
+- [AaveV3BackstopAdapter.sol](./AaveV3BackstopAdapter.sol)
+- [AaveV3BackstopExecutor.sol](./AaveV3BackstopExecutor.sol)
+- [AavePositionMonitorReactiveContract.sol](./AavePositionMonitorReactiveContract.sol)
+- [DeployBackstopAaveSepolia.s.sol](../../script/DeployBackstopAaveSepolia.s.sol)
+- [DeployBackstopAaveLasna.s.sol](../../script/DeployBackstopAaveLasna.s.sol)
+- [SetupBackstopAaveSepolia.s.sol](../../script/SetupBackstopAaveSepolia.s.sol)
+- [TriggerBackstopAaveRisk.s.sol](../../script/TriggerBackstopAaveRisk.s.sol)
+- [SyncBackstopAavePosition.s.sol](../../script/SyncBackstopAavePosition.s.sol)
 
 Current status:
 
@@ -181,10 +181,10 @@ That means the protocol integration work is real and reusable, and the next live
 
 There is now a buildless Backstop UI for demos and grant reviews:
 
-- [index.html](/Users/vicgunga/reactive/src/demos/backstop/ui/index.html)
-- [app.js](/Users/vicgunga/reactive/src/demos/backstop/ui/app.js)
-- [styles.css](/Users/vicgunga/reactive/src/demos/backstop/ui/styles.css)
-- [serve-backstop-ui.mjs](/Users/vicgunga/reactive/script/backstop/serve-backstop-ui.mjs)
+- [index.html](./ui/index.html)
+- [app.js](./ui/app.js)
+- [styles.css](./ui/styles.css)
+- [serve-backstop-ui.mjs](../../script/backstop/serve-backstop-ui.mjs)
 
 Run it from the repo root:
 

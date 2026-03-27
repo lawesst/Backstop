@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.20;
 
-import "../src/demos/backstop/BackstopLendingAdapter.sol";
+import "../src/backstop/BackstopLendingAdapter.sol";
 import "./backstop/BackstopScriptBase.s.sol";
 
 contract TriggerBackstopRisk is BackstopScriptBase {

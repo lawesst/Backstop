@@ -5,11 +5,11 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 
 import "../lib/reactive-lib/src/interfaces/IReactive.sol";
-import "../src/demos/backstop/AavePositionMonitorReactiveContract.sol";
-import "../src/demos/backstop/AaveV3BackstopAdapter.sol";
-import "../src/demos/backstop/AaveV3BackstopExecutor.sol";
-import "../src/demos/backstop/IERC20Like.sol";
-import "../src/demos/backstop/MockUSDC.sol";
+import "../src/backstop/AavePositionMonitorReactiveContract.sol";
+import "../src/backstop/AaveV3BackstopAdapter.sol";
+import "../src/backstop/AaveV3BackstopExecutor.sol";
+import "../src/backstop/IERC20Like.sol";
+import "../src/backstop/MockUSDC.sol";
 
 contract MockSystemContractAave {
     struct Subscription {

@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.20;
 
-import "../src/demos/backstop/BackstopVault.sol";
+import "../src/backstop/BackstopVault.sol";
 import "./backstop/BackstopScriptBase.s.sol";
 
 contract ReplayBackstopState is BackstopScriptBase {

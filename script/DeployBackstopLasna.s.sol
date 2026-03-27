@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.20;
 
-import "../src/demos/backstop/BackstopReactiveContract.sol";
+import "../src/backstop/BackstopReactiveContract.sol";
 import "./backstop/BackstopScriptBase.s.sol";
 
 contract DeployBackstopLasna is BackstopScriptBase {

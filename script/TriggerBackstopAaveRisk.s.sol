@@ -2,7 +2,7 @@
 
 pragma solidity >=0.8.20;
 
-import "../src/demos/backstop/AaveV3Interfaces.sol";
+import "../src/backstop/AaveV3Interfaces.sol";
 import "./backstop/BackstopScriptBase.s.sol";
 
 contract TriggerBackstopAaveRisk is BackstopScriptBase {

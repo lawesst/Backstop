@@ -2,8 +2,8 @@
 
 pragma solidity >=0.8.20;
 
-import "../src/demos/backstop/AavePositionMonitorReactiveContract.sol";
-import "../src/demos/backstop/BackstopReactiveContract.sol";
+import "../src/backstop/AavePositionMonitorReactiveContract.sol";
+import "../src/backstop/BackstopReactiveContract.sol";
 import "./backstop/BackstopScriptBase.s.sol";
 
 contract DeployBackstopAaveLasna is BackstopScriptBase {

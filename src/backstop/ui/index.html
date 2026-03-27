@@ -185,41 +185,45 @@
       </section>
 
       <section class="two-up">
-        <section class="panel">
+        <section class="panel panel--operations">
           <div class="panel__header">
             <div>
               <p class="section-label">Operations</p>
               <h2>Replay + Sync</h2>
             </div>
+            <span class="panel-badge">Sepolia Writes</span>
           </div>
 
-          <div class="field-row field-row--compact">
-            <label class="field">
-              <span>Min Health Factor</span>
-              <input id="minHealthFactorInput" type="text" inputmode="decimal" />
-            </label>
-            <label class="field">
-              <span>Rescue Amount (USDC)</span>
-              <input id="rescueAmountInput" type="text" inputmode="decimal" />
-            </label>
-            <label class="field">
-              <span>Cooldown Blocks</span>
-              <input id="cooldownBlocksInput" type="number" min="0" step="1" />
-            </label>
-          </div>
+          <div class="ops-shell">
+            <div class="field-row field-row--compact ops-fields">
+              <label class="field control-card">
+                <span>Min Health Factor</span>
+                <input id="minHealthFactorInput" type="text" inputmode="decimal" />
+              </label>
+              <label class="field control-card">
+                <span>Rescue Amount (USDC)</span>
+                <input id="rescueAmountInput" type="text" inputmode="decimal" />
+              </label>
+              <label class="field control-card">
+                <span>Cooldown Blocks</span>
+                <input id="cooldownBlocksInput" type="number" min="0" step="1" />
+              </label>
+            </div>
 
-          <div class="action-row">
-            <button id="replayProtection" class="button button--primary">
-              Replay Protection
-            </button>
-            <button id="replayReserve" class="button">Replay Reserve</button>
-            <button id="syncPosition" class="button">Sync Position</button>
-          </div>
+            <div class="action-row action-row--ops">
+              <button id="replayProtection" class="button button--primary button--ops">
+                Replay Protection
+              </button>
+              <button id="replayReserve" class="button button--ops">Replay Reserve</button>
+              <button id="syncPosition" class="button button--ops">Sync Position</button>
+            </div>
 
-          <p class="subtle">
-            These writes target the current owner on Sepolia and are enough to
-            rerun the live Aave monitoring path without using the old mock setup.
-          </p>
+            <p class="subtle subtle--ops">
+              These actions re-arm the live Aave path from Sepolia without
+              relying on the old mock flow. Use them when you need to re-emit
+              protection state or force a fresh adapter update into Lasna.
+            </p>
+          </div>
         </section>
 
         <section class="panel">

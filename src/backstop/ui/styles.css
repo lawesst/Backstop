@@ -199,6 +199,22 @@ h1 {
   align-items: flex-start;
 }
 
+.panel-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(177, 75, 34, 0.18);
+  border-radius: 999px;
+  background: rgba(177, 75, 34, 0.08);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 .panel__header h2 {
   margin-top: 4px;
   font-size: 26px;
@@ -239,6 +255,63 @@ h1 {
   outline: 2px solid rgba(177, 75, 34, 0.18);
   outline-offset: 1px;
   border-color: rgba(177, 75, 34, 0.45);
+}
+
+.panel--operations {
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.92), rgba(255, 249, 240, 0.98)),
+    var(--surface);
+}
+
+.ops-shell {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid rgba(177, 75, 34, 0.12);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(177, 75, 34, 0.04), rgba(255, 255, 255, 0)),
+    var(--surface-strong);
+}
+
+.ops-fields {
+  margin-top: 0;
+}
+
+.control-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.control-card input {
+  background: #fffdf8;
+}
+
+.action-row--ops {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.button--ops {
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.button--ops.button--primary {
+  background: var(--ink);
+}
+
+.subtle--ops {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px dashed rgba(177, 75, 34, 0.2);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.56);
 }
 
 .readonly {
@@ -419,7 +492,8 @@ h1 {
   .field-row--compact,
   .contracts,
   .metric-grid,
-  .two-up {
+  .two-up,
+  .action-row--ops {
     grid-template-columns: 1fr;
   }
 

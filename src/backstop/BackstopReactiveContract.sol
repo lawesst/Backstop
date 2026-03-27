@@ -6,6 +6,13 @@ import "../../lib/reactive-lib/src/abstract-base/AbstractReactive.sol";
 import "../../lib/reactive-lib/src/interfaces/IReactive.sol";
 
 contract BackstopReactiveContract is IReactive, AbstractReactive {
+    uint8 public constant REASON_INACTIVE = 0;
+    uint8 public constant REASON_HEALTHY = 1;
+    uint8 public constant REASON_RESERVE_TOO_LOW = 2;
+    uint8 public constant REASON_COOLDOWN_ACTIVE = 3;
+    uint8 public constant REASON_ZERO_REPAY = 4;
+    uint8 public constant REASON_TRIGGER_READY = 5;
+
     struct ProtectionState {
         uint256 minHealthFactor;
         uint256 rescueAmount;
@@ -43,6 +50,18 @@ contract BackstopReactiveContract is IReactive, AbstractReactive {
         bytes32 indexed positionId,
         uint256 availableReserve,
         uint256 committedReserve
+    );
+
+    event RescueEvaluation(
+        bytes32 indexed positionId,
+        uint8 indexed decision,
+        uint256 observedHealthFactor,
+        uint256 debtOutstanding,
+        uint256 minHealthFactor,
+        uint256 availableReserve,
+        uint256 committedReserve,
+        uint256 lastRescueBlock,
+        uint256 blockNumber
     );
 
     event RescueTriggered(
@@ -125,6 +144,25 @@ contract BackstopReactiveContract is IReactive, AbstractReactive {
         return vm;
     }
 
+    function previewRescue(
+        bytes32 positionId,
+        uint256 healthFactor,
+        uint256 debtOutstanding,
+        uint256 blockNumber
+    )
+        external
+        view
+        returns (
+            uint8 decision,
+            uint256 repayAmount,
+            uint256 reserveAfter,
+            uint256 committedAfter
+        )
+    {
+        ProtectionState memory protection = protections[positionId];
+        return _previewRescue(protection, healthFactor, debtOutstanding, blockNumber);
+    }
+
     function _handleProtectionConfigured(bytes32 positionId, bytes calldata data) private {
         (uint256 minHealthFactor, uint256 rescueAmount, uint256 cooldownBlocks) =
             abi.decode(data, (uint256, uint256, uint256));
@@ -154,42 +192,19 @@ contract BackstopReactiveContract is IReactive, AbstractReactive {
         uint256 blockNumber
     ) private {
         (uint256 healthFactor, uint256 debtOutstanding) = abi.decode(data, (uint256, uint256));
+        ProtectionState memory snapshot = protections[positionId];
+
+        (uint8 decision, uint256 repayAmount,,) =
+            _previewRescue(snapshot, healthFactor, debtOutstanding, blockNumber);
+
+        _emitRescueEvaluation(positionId, decision, healthFactor, debtOutstanding, snapshot, blockNumber);
+
+        if (decision != REASON_TRIGGER_READY) {
+            emit RescueSkipped(positionId, decision, healthFactor, snapshot.availableReserve);
+            return;
+        }
+
         ProtectionState storage protection = protections[positionId];
-
-        if (!protection.active) {
-            emit RescueSkipped(positionId, 0, healthFactor, protection.availableReserve);
-            return;
-        }
-
-        if (healthFactor > protection.minHealthFactor) {
-            emit RescueSkipped(positionId, 1, healthFactor, protection.availableReserve);
-            return;
-        }
-
-        if (protection.availableReserve == 0 || protection.availableReserve < protection.rescueAmount) {
-            emit RescueSkipped(positionId, 2, healthFactor, protection.availableReserve);
-            return;
-        }
-
-        if (
-            protection.cooldownBlocks > 0 &&
-            protection.lastRescueBlock > 0 &&
-            blockNumber < protection.lastRescueBlock + protection.cooldownBlocks
-        ) {
-            emit RescueSkipped(positionId, 3, healthFactor, protection.availableReserve);
-            return;
-        }
-
-        uint256 repayAmount = protection.rescueAmount;
-        if (repayAmount > debtOutstanding) {
-            repayAmount = debtOutstanding;
-        }
-
-        if (repayAmount == 0) {
-            emit RescueSkipped(positionId, 4, healthFactor, protection.availableReserve);
-            return;
-        }
-
         protection.availableReserve -= repayAmount;
         protection.committedReserve += repayAmount;
         protection.lastRescueBlock = blockNumber;
@@ -211,5 +226,103 @@ contract BackstopReactiveContract is IReactive, AbstractReactive {
             repayAmount
         );
         emit Callback(debtChainId, rescueExecutor, callbackGasLimit, rescuePayload);
+    }
+
+    function _emitRescueEvaluation(
+        bytes32 positionId,
+        uint8 decision,
+        uint256 healthFactor,
+        uint256 debtOutstanding,
+        ProtectionState memory snapshot,
+        uint256 blockNumber
+    ) private {
+        emit RescueEvaluation(
+            positionId,
+            decision,
+            healthFactor,
+            debtOutstanding,
+            snapshot.minHealthFactor,
+            snapshot.availableReserve,
+            snapshot.committedReserve,
+            snapshot.lastRescueBlock,
+            blockNumber
+        );
+    }
+
+    function _previewRescue(
+        ProtectionState memory protection,
+        uint256 healthFactor,
+        uint256 debtOutstanding,
+        uint256 blockNumber
+    )
+        private
+        pure
+        returns (
+            uint8 decision,
+            uint256 repayAmount,
+            uint256 reserveAfter,
+            uint256 committedAfter
+        )
+    {
+        if (!protection.active) {
+            return (
+                REASON_INACTIVE,
+                0,
+                protection.availableReserve,
+                protection.committedReserve
+            );
+        }
+
+        if (healthFactor > protection.minHealthFactor) {
+            return (
+                REASON_HEALTHY,
+                0,
+                protection.availableReserve,
+                protection.committedReserve
+            );
+        }
+
+        if (protection.availableReserve == 0 || protection.availableReserve < protection.rescueAmount) {
+            return (
+                REASON_RESERVE_TOO_LOW,
+                0,
+                protection.availableReserve,
+                protection.committedReserve
+            );
+        }
+
+        if (
+            protection.cooldownBlocks > 0 &&
+            protection.lastRescueBlock > 0 &&
+            blockNumber < protection.lastRescueBlock + protection.cooldownBlocks
+        ) {
+            return (
+                REASON_COOLDOWN_ACTIVE,
+                0,
+                protection.availableReserve,
+                protection.committedReserve
+            );
+        }
+
+        repayAmount = protection.rescueAmount;
+        if (repayAmount > debtOutstanding) {
+            repayAmount = debtOutstanding;
+        }
+
+        if (repayAmount == 0) {
+            return (
+                REASON_ZERO_REPAY,
+                0,
+                protection.availableReserve,
+                protection.committedReserve
+            );
+        }
+
+        return (
+            REASON_TRIGGER_READY,
+            repayAmount,
+            protection.availableReserve - repayAmount,
+            protection.committedReserve + repayAmount
+        );
     }
 }

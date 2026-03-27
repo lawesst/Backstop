@@ -83,6 +83,21 @@ contract AaveV3BackstopAdapter is AbstractCallback {
         return (position.user, position.debtAsset, position.variableDebtToken, position.active);
     }
 
+    function getLiveHealthFactor(bytes32 positionId) external view returns (uint256) {
+        PositionConfig memory position = positions[positionId];
+        require(position.active, "inactive");
+
+        (, , , , , uint256 healthFactor) = pool.getUserAccountData(position.user);
+        return healthFactor;
+    }
+
+    function getLiveDebtOutstanding(bytes32 positionId) external view returns (uint256) {
+        PositionConfig memory position = positions[positionId];
+        require(position.active, "inactive");
+
+        return IERC20Like(position.variableDebtToken).balanceOf(position.user);
+    }
+
     function _emitHealthFactor(bytes32 positionId) internal {
         PositionConfig memory position = positions[positionId];
         require(position.active, "inactive");

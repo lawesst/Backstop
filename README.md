@@ -80,6 +80,8 @@ node script/backstop/serve-backstop-ui.mjs
 
 Then open `http://localhost:4173`.
 
+The current UI is intentionally minimal and pointed at the live Aave Sepolia plus Lasna stack. It shows proof links, live health and reserve state, Lasna contract debt, and the replay or sync actions used during debugging.
+
 ## Testnet Workflow
 
 The Sepolia and Reactive Lasna workflow, deployed addresses, transaction hashes, and live debugging notes are documented in:
@@ -94,7 +96,12 @@ The contract-level design and project-specific notes live in:
 
 - The original Aave path proved live reserve callbacks on Sepolia and narrowed the rescue failure to executor callback gas budgeting.
 - A fresh clean-stack deployment proved raw on-chain Lasna deployment works and uncovered an Aave borrow-topic bug in the monitor, which is now fixed in code and covered by tests.
-- The remaining live issue is on the fresh Lasna Backstop side after Sepolia emits normalized `HealthFactorUpdated` events.
+- The earlier “missing mirrored state” read was a false signal: ReactVM state is separate from the top-level Lasna contract storage.
+- The current live blocker on the older Aave Backstop contract is unpaid Lasna debt plus a too-small executor callback gas budget.
+- A fresh Sepolia rerun on March 27, 2026 re-emitted `HealthFactorUpdated` successfully but still produced no new reserve or executor state changes, so the remaining gap is now isolated to the Lasna callback-posting leg.
+- The repo now includes targeted debugging helpers:
+  - `script/InspectBackstopAaveState.s.sol`
+  - `script/CoverBackstopReactiveDebt.s.sol`
 
 ## Environment Files
 

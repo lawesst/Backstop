@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 
 const port = Number(process.env.BACKSTOP_UI_PORT || 4173);
-const root = join(process.cwd(), "src", "demos", "backstop", "ui");
+const root = join(process.cwd(), "src", "backstop", "ui");
 
 const rpcTargets = {
   "/rpc/sepolia":

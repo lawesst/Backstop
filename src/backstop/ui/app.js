@@ -1,7 +1,10 @@
 import * as ethers from "https://esm.sh/ethers@6.13.5";
 
 const config = {
-  proofStartBlock: 10531690,
+  demoOwner: "0x5508532b027D57b020e6C0BeDB1fE19a6d6C555c",
+  systemContract: "0x0000000000000000000000000000000000fffFfF",
+  aavePool: "0x6Ae43d3271ff6888e7Fc43Fd7321a503ff738951",
+  usdc: "0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8",
   networks: {
     sepolia: {
       name: "Ethereum Sepolia",
@@ -18,45 +21,43 @@ const config = {
       explorerAddress: "https://lasna.reactscan.net/address/",
     },
   },
-  demoOwner: "0x5508532b027D57b020e6C0BeDB1fE19a6d6C555c",
   contracts: {
-    token: "0x74d1e4919dfdbfd7494b0040f09f91286a9d1109",
-    lendingMarket: "0xd880304d41ab741a23f1760259cb751828869da1",
-    lendingAdapter: "0xb5c1CD1d7a0b6539645eeddc83e5e9AeB37Fe929",
-    vault: "0xfa83C25d5185849Eb2AD372B1448CB641702b483",
-    executor: "0x05774D9DED46085383b82fA850423e02a79983b2",
-    reactive: "0x7ce18b45986E9b69A12bF021b6D14f873e7BA5dA",
+    vault: "0x82B78985fC07Bc9868bEd357A9dFF0B710212F6e",
+    adapter: "0x6d165fAA504Fdc111a5dBA6651546FFDC87bB8AB",
+    executor: "0xc6f2e814f9845FD9404585049aF2147a35943cc6",
+    reactive: "0x3C76B3404dd108173952Ff9dD8Bcb58c4ECe945e",
+    monitor: "0x93D1ba29FaDC0bA6a8863A9B21C70d6D5Db006dd",
   },
   proofLinks: [
     {
-      label: "Risk Trigger",
-      url: "https://sepolia.etherscan.io/tx/0x7efd7f51d81496e6d390c86d6258a690a43de79ae3c29706b6094f171d070335",
-      hash: "0x7efd7f51d81496e6d390c86d6258a690a43de79ae3c29706b6094f171d070335",
+      label: "Aave Risk Borrow",
+      hash: "0x4fd985858a73a550e91d4947e1d262046ef0d7c6e7383fee4e2b1af88a04237f",
+      network: "sepolia",
     },
     {
-      label: "Reactive Deploy",
-      url: "https://lasna.reactscan.net/tx/0x94e8e66ec5657a92586e5da4b7cde18b9c5cdce53736c751e87b02b345b97582",
-      hash: "0x94e8e66ec5657a92586e5da4b7cde18b9c5cdce53736c751e87b02b345b97582",
+      label: "Latest Sync Rerun",
+      hash: "0xe3b0138ccdc860365c78e82e04c0818ff6ee24842d302aec7cb98464dff69176",
+      network: "sepolia",
     },
     {
-      label: "Callback Posting",
-      url: "https://lasna.reactscan.net/tx/0xcc25ef4e1ba3f05c2b2660ef29101e3cfc9eaa3ffbe70af49580166bf1a32721",
-      hash: "0xcc25ef4e1ba3f05c2b2660ef29101e3cfc9eaa3ffbe70af49580166bf1a32721",
+      label: "Executor Callback Failure",
+      hash: "0xf30bb8470e36c45164221e2d407725f2fe1a588996b2424a70bc3caa005f6016",
+      network: "sepolia",
     },
     {
-      label: "RVM Execution",
-      url: "https://lasna.reactscan.net/address/0x7ce18b45986E9b69A12bF021b6D14f873e7BA5dA/2890421",
-      hash: "0xf9d286a77d46a41c6d01b7575675774d2a57858e22707c9d39af93feaa9e66b3",
+      label: "Latest Replay Protection",
+      hash: "0x99ed3c184a4bda32ffbf90b9e5ea29d5d8ec56863ca809778a61dd0c91b6208f",
+      network: "sepolia",
     },
     {
-      label: "Reserve Commit Callback",
-      url: "https://sepolia.etherscan.io/tx/0xcef7d02e63be0dbebe9b647376be7503e4af1f17b95f5907806d916d91000f76",
-      hash: "0xcef7d02e63be0dbebe9b647376be7503e4af1f17b95f5907806d916d91000f76",
+      label: "Latest Replay Reserve",
+      hash: "0x91b93813d9e5358818aaefde6c7b33e59b0fa5b59556b2edc0d56e1b4ba3a5bb",
+      network: "sepolia",
     },
     {
-      label: "Rescue Execution Callback",
-      url: "https://sepolia.etherscan.io/tx/0xdd62f5aebf9c8c29189440cbd5dd975dd5cd1b329f4217ea607af92700a8114d",
-      hash: "0xdd62f5aebf9c8c29189440cbd5dd975dd5cd1b329f4217ea607af92700a8114d",
+      label: "Backstop Reactive Contract",
+      address: "0x3C76B3404dd108173952Ff9dD8Bcb58c4ECe945e",
+      network: "lasna",
     },
   ],
 };
@@ -65,36 +66,33 @@ const vaultAbi = [
   "function positions(bytes32) view returns (address owner, uint256 availableReserve, uint256 committedReserve, uint256 minHealthFactor, uint256 rescueAmount, uint256 cooldownBlocks, bool active)",
   "function configureProtection(bytes32 positionId, uint256 minHealthFactor, uint256 rescueAmount, uint256 cooldownBlocks)",
   "function depositReserve(bytes32 positionId, uint256 amount)",
-  "event ReserveCommitted(bytes32 indexed positionId, uint256 amount, address indexed reactiveSender)",
 ];
 
-const tokenAbi = [
-  "function mint(address to, uint256 amount)",
-  "function approve(address spender, uint256 amount) returns (bool)",
+const adapterAbi = [
+  "function getPosition(bytes32) view returns (address user, address debtAsset, address variableDebtToken, bool active)",
+  "function syncPosition(bytes32 positionId)",
+];
+
+const poolAbi = [
+  "function getUserAccountData(address user) view returns (uint256,uint256,uint256,uint256,uint256,uint256)",
+];
+
+const erc20Abi = [
   "function balanceOf(address owner) view returns (uint256)",
   "function allowance(address owner, address spender) view returns (uint256)",
 ];
 
-const lendingMarketAbi = [
-  "function positions(bytes32) view returns (address owner, uint256 collateralValue, uint256 debtOutstanding)",
-  "function healthFactor(bytes32) view returns (uint256)",
-  "event RescueApplied(bytes32 indexed positionId, uint256 repayAmount, uint256 newDebtOutstanding, uint256 newHealthFactor, address indexed executor)",
-];
-
-const lendingAdapterAbi = [
-  "function openPosition(bytes32 positionId, uint256 collateralValue, uint256 debtOutstanding)",
-  "function updateCollateralValue(bytes32 positionId, uint256 collateralValue)",
-];
-
-const executorAbi = [
-  "function fundLiquidity(uint256 amount)",
-  "function availableLiquidity() view returns (uint256)",
-  "event RescueExecuted(bytes32 indexed positionId, uint256 amount, address indexed reactiveSender)",
-];
+const executorAbi = ["function availableLiquidity() view returns (uint256)"];
 
 const reactiveAbi = [
-  "function protections(bytes32) view returns (uint256 minHealthFactor, uint256 rescueAmount, uint256 cooldownBlocks, uint256 availableReserve, uint256 committedReserve, uint256 lastRescueBlock, bool active)",
+  "function reserveVault() view returns (address)",
+  "function lendingAdapter() view returns (address)",
+  "function rescueExecutor() view returns (address)",
+  "function callbackGasLimit() view returns (uint64)",
 ];
+
+const monitorAbi = ["function watchedAccounts(address) view returns (bool)"];
+const systemAbi = ["function debt(address) view returns (uint256)"];
 
 const state = {
   sepoliaProvider: new ethers.JsonRpcProvider(
@@ -108,6 +106,7 @@ const state = {
   browserProvider: null,
   signer: null,
   walletAddress: null,
+  feed: [],
 };
 
 const ui = {
@@ -116,141 +115,84 @@ const ui = {
   healthBadge: byId("healthBadge"),
   lastRefresh: byId("lastRefresh"),
   ownerInput: byId("ownerAddressInput"),
-  ownerHint: byId("ownerHint"),
+  useConnectedWallet: byId("useConnectedWallet"),
   positionId: byId("positionIdValue"),
+  expectedDecision: byId("expectedDecision"),
+  vaultLink: byId("vaultLink"),
+  adapterLink: byId("adapterLink"),
+  executorLink: byId("executorLink"),
   reactiveContractLink: byId("reactiveContractLink"),
-  contractSummary: byId("contractSummary"),
+  monitorContractLink: byId("monitorContractLink"),
+  poolLink: byId("poolLink"),
   metricHealthFactor: byId("metricHealthFactor"),
   metricMinHealthFactor: byId("metricMinHealthFactor"),
   metricDebtOutstanding: byId("metricDebtOutstanding"),
-  metricCollateralValue: byId("metricCollateralValue"),
   metricReserveAvailable: byId("metricReserveAvailable"),
   metricReserveCommitted: byId("metricReserveCommitted"),
-  metricReactiveReserve: byId("metricReactiveReserve"),
   metricExecutorLiquidity: byId("metricExecutorLiquidity"),
   metricOwnerBalance: byId("metricOwnerBalance"),
   metricVaultAllowance: byId("metricVaultAllowance"),
-  metricCooldown: byId("metricCooldown"),
-  metricProtectionActive: byId("metricProtectionActive"),
-  proofLinks: byId("proofLinks"),
-  activityFeed: byId("activityFeed"),
-  actionFeed: byId("actionFeed"),
-  connectWallet: byId("connectWallet"),
-  switchSepolia: byId("switchSepolia"),
-  refreshState: byId("refreshState"),
-  useConnectedWallet: byId("useConnectedWallet"),
-  mintAmountInput: byId("mintAmountInput"),
-  executorFundingInput: byId("executorFundingInput"),
-  openCollateralInput: byId("openCollateralInput"),
-  openDebtInput: byId("openDebtInput"),
+  metricCallbackGas: byId("metricCallbackGas"),
+  metricBackstopBalance: byId("metricBackstopBalance"),
+  metricBackstopDebt: byId("metricBackstopDebt"),
+  metricMonitorWatch: byId("metricMonitorWatch"),
+  metricMonitorDebt: byId("metricMonitorDebt"),
   minHealthFactorInput: byId("minHealthFactorInput"),
   rescueAmountInput: byId("rescueAmountInput"),
   cooldownBlocksInput: byId("cooldownBlocksInput"),
-  reserveDepositInput: byId("reserveDepositInput"),
-  riskCollateralInput: byId("riskCollateralInput"),
-  mintDemoFunds: byId("mintDemoFunds"),
-  fundExecutor: byId("fundExecutor"),
-  openPosition: byId("openPosition"),
-  configureProtection: byId("configureProtection"),
-  approveVault: byId("approveVault"),
-  depositReserve: byId("depositReserve"),
-  replayState: byId("replayState"),
-  triggerRisk: byId("triggerRisk"),
+  connectWallet: byId("connectWallet"),
+  switchSepolia: byId("switchSepolia"),
+  refreshState: byId("refreshState"),
+  replayProtection: byId("replayProtection"),
+  replayReserve: byId("replayReserve"),
+  syncPosition: byId("syncPosition"),
+  proofLinks: byId("proofLinks"),
+  activityFeed: byId("activityFeed"),
 };
 
 const sepoliaContracts = {
-  token: new ethers.Contract(config.contracts.token, tokenAbi, state.sepoliaProvider),
   vault: new ethers.Contract(config.contracts.vault, vaultAbi, state.sepoliaProvider),
-  lendingMarket: new ethers.Contract(
-    config.contracts.lendingMarket,
-    lendingMarketAbi,
-    state.sepoliaProvider
-  ),
-  lendingAdapter: new ethers.Contract(
-    config.contracts.lendingAdapter,
-    lendingAdapterAbi,
-    state.sepoliaProvider
-  ),
+  adapter: new ethers.Contract(config.contracts.adapter, adapterAbi, state.sepoliaProvider),
+  pool: new ethers.Contract(config.aavePool, poolAbi, state.sepoliaProvider),
+  usdc: new ethers.Contract(config.usdc, erc20Abi, state.sepoliaProvider),
   executor: new ethers.Contract(config.contracts.executor, executorAbi, state.sepoliaProvider),
 };
 
-const reactiveContract = new ethers.Contract(
-  config.contracts.reactive,
-  reactiveAbi,
-  state.lasnaProvider
-);
+const lasnaContracts = {
+  reactive: new ethers.Contract(
+    config.contracts.reactive,
+    reactiveAbi,
+    state.lasnaProvider
+  ),
+  monitor: new ethers.Contract(config.contracts.monitor, monitorAbi, state.lasnaProvider),
+  system: new ethers.Contract(config.systemContract, systemAbi, state.lasnaProvider),
+};
 
 ui.ownerInput.value = config.demoOwner;
-ui.reactiveContractLink.href = `${config.networks.lasna.explorerAddress}${config.contracts.reactive}`;
-ui.contractSummary.textContent = [
-  shortAddress(config.contracts.vault),
-  shortAddress(config.contracts.lendingAdapter),
-  shortAddress(config.contracts.lendingMarket),
-  shortAddress(config.contracts.executor),
-].join("  ");
-
+renderStaticLinks();
 renderProofLinks();
 bindEvents();
 loadState().catch((error) => {
-  pushFeed(
-    ui.actionFeed,
-    "Read Failure",
-    friendlyError(error),
-    "danger"
-  );
+  pushFeed("Initial Load Failed", friendlyError(error), "danger");
 });
 
 function bindEvents() {
-  ui.ownerInput.addEventListener("change", () => loadState());
-  ui.refreshState.addEventListener("click", () => loadState());
+  ui.ownerInput.addEventListener("change", () =>
+    loadState().catch((error) => pushFeed("Refresh Failed", friendlyError(error), "danger"))
+  );
+  ui.refreshState.addEventListener("click", () =>
+    loadState().catch((error) => pushFeed("Refresh Failed", friendlyError(error), "danger"))
+  );
   ui.connectWallet.addEventListener("click", connectWallet);
   ui.switchSepolia.addEventListener("click", switchToSepolia);
   ui.useConnectedWallet.addEventListener("click", () => {
     if (!state.walletAddress) return;
     ui.ownerInput.value = state.walletAddress;
-    loadState();
+    loadState().catch((error) => pushFeed("Refresh Failed", friendlyError(error), "danger"));
   });
 
-  ui.mintDemoFunds.addEventListener("click", () =>
-    runSepoliaAction("Mint Demo Funds", async (contracts, signerAddress) => {
-      const amount = parseToken(ui.mintAmountInput.value);
-      const tx = await contracts.token.mint(signerAddress, amount);
-      return { tx };
-    })
-  );
-
-  ui.fundExecutor.addEventListener("click", () =>
-    runSepoliaAction("Fund Executor", async (contracts) => {
-      const amount = parseToken(ui.executorFundingInput.value);
-      const approveTx = await contracts.token.approve(config.contracts.executor, amount);
-      await approveTx.wait();
-      pushActionUpdate(
-        "Approve Executor",
-        `Approved ${formatToken(amount)} mUSDC for executor funding.`,
-        txAnchor(approveTx.hash, config.networks.sepolia)
-      );
-
-      const fundTx = await contracts.executor.fundLiquidity(amount);
-      return { tx: fundTx };
-    })
-  );
-
-  ui.openPosition.addEventListener("click", () =>
-    runSepoliaAction("Open Demo Position", async (contracts) => {
-      const positionId = currentPositionId();
-      const collateralValue = parseToken(ui.openCollateralInput.value);
-      const debtOutstanding = parseToken(ui.openDebtInput.value);
-      const tx = await contracts.lendingAdapter.openPosition(
-        positionId,
-        collateralValue,
-        debtOutstanding
-      );
-      return { tx };
-    })
-  );
-
-  ui.configureProtection.addEventListener("click", () =>
-    runSepoliaAction("Configure Protection", async (contracts) => {
+  ui.replayProtection.addEventListener("click", () =>
+    runSepoliaAction("Replay Protection", async (contracts) => {
       const tx = await contracts.vault.configureProtection(
         currentPositionId(),
         parseHealthFactor(ui.minHealthFactorInput.value),
@@ -261,53 +203,16 @@ function bindEvents() {
     })
   );
 
-  ui.approveVault.addEventListener("click", () =>
-    runSepoliaAction("Approve Vault", async (contracts) => {
-      const tx = await contracts.token.approve(
-        config.contracts.vault,
-        parseToken(ui.reserveDepositInput.value)
-      );
+  ui.replayReserve.addEventListener("click", () =>
+    runSepoliaAction("Replay Reserve", async (contracts) => {
+      const tx = await contracts.vault.depositReserve(currentPositionId(), 0n);
       return { tx };
     })
   );
 
-  ui.depositReserve.addEventListener("click", () =>
-    runSepoliaAction("Deposit Reserve", async (contracts) => {
-      const tx = await contracts.vault.depositReserve(
-        currentPositionId(),
-        parseToken(ui.reserveDepositInput.value)
-      );
-      return { tx };
-    })
-  );
-
-  ui.replayState.addEventListener("click", () =>
-    runSepoliaAction("Replay State", async (contracts) => {
-      const positionId = currentPositionId();
-      const configureTx = await contracts.vault.configureProtection(
-        positionId,
-        parseHealthFactor(ui.minHealthFactorInput.value),
-        parseToken(ui.rescueAmountInput.value),
-        BigInt(ui.cooldownBlocksInput.value || "0")
-      );
-      await configureTx.wait();
-      pushActionUpdate(
-        "Replay Step 1",
-        "Re-emitted ProtectionConfigured.",
-        txAnchor(configureTx.hash, config.networks.sepolia)
-      );
-
-      const reserveTx = await contracts.vault.depositReserve(positionId, 0n);
-      return { tx: reserveTx };
-    })
-  );
-
-  ui.triggerRisk.addEventListener("click", () =>
-    runSepoliaAction("Trigger Risk Event", async (contracts) => {
-      const tx = await contracts.lendingAdapter.updateCollateralValue(
-        currentPositionId(),
-        parseToken(ui.riskCollateralInput.value)
-      );
+  ui.syncPosition.addEventListener("click", () =>
+    runSepoliaAction("Sync Position", async (contracts) => {
+      const tx = await contracts.adapter.syncPosition(currentPositionId());
       return { tx };
     })
   );
@@ -317,307 +222,350 @@ function bindEvents() {
       state.walletAddress = accounts[0] ? ethers.getAddress(accounts[0]) : null;
       state.signer = null;
       updateWalletBadge();
-      await loadState();
-    });
-
-    window.ethereum.on("chainChanged", async () => {
-      state.signer = null;
-      await connectWallet({ silent: true });
-      await loadState();
+      await loadState().catch((error) =>
+        pushFeed("Refresh Failed", friendlyError(error), "danger")
+      );
     });
   }
 }
 
-async function connectWallet(options = {}) {
+async function loadState() {
+  const owner = currentOwner();
+  const positionId = currentPositionId();
+
+  ui.trackedOwnerBadge.textContent = shortAddress(owner);
+  ui.positionId.textContent = positionId;
+
+  const [
+    vaultPosition,
+    adapterPosition,
+    reactiveReserveVault,
+    reactiveLendingAdapter,
+    reactiveExecutor,
+    callbackGasLimit,
+    reactiveBalance,
+    reactiveDebt,
+    monitorWatched,
+    monitorDebt,
+  ] = await Promise.all([
+    sepoliaContracts.vault.positions(positionId),
+    sepoliaContracts.adapter.getPosition(positionId),
+    lasnaContracts.reactive.reserveVault(),
+    lasnaContracts.reactive.lendingAdapter(),
+    lasnaContracts.reactive.rescueExecutor(),
+    lasnaContracts.reactive.callbackGasLimit(),
+    state.lasnaProvider.getBalance(config.contracts.reactive),
+    lasnaContracts.system.debt(config.contracts.reactive),
+    lasnaContracts.monitor.watchedAccounts(owner),
+    lasnaContracts.system.debt(config.contracts.monitor),
+  ]);
+
+  let healthFactor = null;
+  let debtOutstanding = null;
+  let user = ethers.ZeroAddress;
+  let variableDebtToken = ethers.ZeroAddress;
+
+  if (adapterPosition[3]) {
+    user = adapterPosition[0];
+    variableDebtToken = adapterPosition[2];
+
+    const [accountData, variableDebtBalance, executorLiquidity, ownerUsdcBalance, ownerAllowance] =
+      await Promise.all([
+        sepoliaContracts.pool.getUserAccountData(user),
+        new ethers.Contract(variableDebtToken, erc20Abi, state.sepoliaProvider).balanceOf(user),
+        sepoliaContracts.executor.availableLiquidity(),
+        sepoliaContracts.usdc.balanceOf(owner),
+        sepoliaContracts.usdc.allowance(owner, config.contracts.vault),
+      ]);
+
+    healthFactor = accountData[5];
+    debtOutstanding = variableDebtBalance;
+
+    ui.metricExecutorLiquidity.textContent = formatToken(executorLiquidity);
+    ui.metricOwnerBalance.textContent = formatToken(ownerUsdcBalance);
+    ui.metricVaultAllowance.textContent = formatToken(ownerAllowance);
+  } else {
+    ui.metricExecutorLiquidity.textContent = "Unavailable";
+    ui.metricOwnerBalance.textContent = "Unavailable";
+    ui.metricVaultAllowance.textContent = "Unavailable";
+  }
+
+  ui.vaultLink.href = explorerAddressUrl("sepolia", reactiveReserveVault);
+  ui.adapterLink.href = explorerAddressUrl("sepolia", reactiveLendingAdapter);
+  ui.executorLink.href = explorerAddressUrl("sepolia", reactiveExecutor);
+  ui.reactiveContractLink.href = explorerAddressUrl("lasna", config.contracts.reactive);
+  ui.monitorContractLink.href = explorerAddressUrl("lasna", config.contracts.monitor);
+  ui.poolLink.href = explorerAddressUrl("sepolia", config.aavePool);
+
+  ui.metricHealthFactor.textContent =
+    healthFactor === null ? "Unavailable" : formatHealthFactor(healthFactor);
+  ui.metricMinHealthFactor.textContent = formatHealthFactor(vaultPosition[3]);
+  ui.metricDebtOutstanding.textContent =
+    debtOutstanding === null ? "Unavailable" : formatToken(debtOutstanding);
+  ui.metricReserveAvailable.textContent = formatToken(vaultPosition[1]);
+  ui.metricReserveCommitted.textContent = formatToken(vaultPosition[2]);
+  ui.metricCallbackGas.textContent = Number(callbackGasLimit).toLocaleString();
+  ui.metricBackstopBalance.textContent = formatEtherValue(reactiveBalance);
+  ui.metricBackstopDebt.textContent = formatEtherValue(reactiveDebt);
+  ui.metricMonitorWatch.textContent = monitorWatched ? "Yes" : "No";
+  ui.metricMonitorDebt.textContent = formatEtherValue(monitorDebt);
+
+  ui.minHealthFactorInput.value = formatHealthFactorInput(vaultPosition[3]);
+  ui.rescueAmountInput.value = formatTokenInput(vaultPosition[4]);
+  ui.cooldownBlocksInput.value = vaultPosition[5].toString();
+
+  const decision = computeExpectedDecision({
+    active: vaultPosition[6],
+    minHealthFactor: vaultPosition[3],
+    rescueAmount: vaultPosition[4],
+    cooldownBlocks: vaultPosition[5],
+    availableReserve: vaultPosition[1],
+    committedReserve: vaultPosition[2],
+    healthFactor,
+    debtOutstanding,
+    backstopDebt: reactiveDebt,
+  });
+
+  ui.expectedDecision.textContent = decision.label;
+  setStatus(ui.expectedDecision, decision.label, decision.tone);
+
+  setStatus(
+    ui.healthBadge,
+    decision.healthLabel,
+    decision.tone
+  );
+
+  ui.lastRefresh.textContent = new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  pushFeed(
+    "State Refreshed",
+    [
+      `HF ${healthFactor === null ? "n/a" : formatHealthFactor(healthFactor)}`,
+      `reserve ${formatToken(vaultPosition[1])}`,
+      `Backstop debt ${formatEtherValue(reactiveDebt)}`,
+      `top-level mirror intentionally ignored`,
+    ].join(" / "),
+    "neutral"
+  );
+
+  updateWalletBadge();
+}
+
+async function runSepoliaAction(label, fn) {
+  try {
+    const signer = await requireSepoliaSigner();
+    const contracts = {
+      vault: new ethers.Contract(config.contracts.vault, vaultAbi, signer),
+      adapter: new ethers.Contract(config.contracts.adapter, adapterAbi, signer),
+    };
+
+    pushFeed(label, "Transaction submitted to Sepolia.", "watch");
+    const { tx } = await fn(contracts);
+    pushFeed(label, "Waiting for confirmation.", "watch", {
+      label: "View tx",
+      href: explorerTxUrl("sepolia", tx.hash),
+    });
+    await tx.wait();
+
+    pushFeed(label, "Confirmed on Sepolia.", "safe", {
+      label: "View tx",
+      href: explorerTxUrl("sepolia", tx.hash),
+    });
+    await loadState();
+  } catch (error) {
+    pushFeed(label, friendlyError(error), "danger");
+  }
+}
+
+async function connectWallet() {
   if (!window.ethereum) {
-    pushFeed(
-      ui.actionFeed,
-      "Wallet Missing",
-      "Install a browser wallet with Sepolia support to use write actions.",
-      "danger"
-    );
+    pushFeed("Wallet", "No browser wallet found.", "danger");
     return;
   }
 
   state.browserProvider = new ethers.BrowserProvider(window.ethereum);
-  const accounts = await state.browserProvider.send(
-    "eth_requestAccounts",
-    options.silent ? [] : []
-  );
+  const accounts = await state.browserProvider.send("eth_requestAccounts", []);
   state.walletAddress = accounts[0] ? ethers.getAddress(accounts[0]) : null;
-  state.signer = state.walletAddress ? await state.browserProvider.getSigner() : null;
+  state.signer = state.walletAddress
+    ? await state.browserProvider.getSigner()
+    : null;
+
   updateWalletBadge();
-  await loadState();
+  pushFeed("Wallet", "Browser wallet connected.", "safe");
 }
 
 async function switchToSepolia() {
-  if (!window.ethereum) return;
+  if (!window.ethereum) {
+    pushFeed("Network", "No browser wallet found.", "danger");
+    return;
+  }
 
   await window.ethereum.request({
     method: "wallet_switchEthereumChain",
     params: [{ chainId: "0xaa36a7" }],
   });
+
+  pushFeed("Network", "Wallet switched to Sepolia.", "safe");
 }
 
-async function loadState() {
-  const ownerAddress = normalizedOwner();
-  const positionId = ownerAddress ? positionIdFor(ownerAddress) : null;
-
-  ui.trackedOwnerBadge.textContent = ownerAddress ? shortAddress(ownerAddress) : "Invalid";
-  ui.positionId.textContent = positionId ?? "Invalid owner";
-  ui.ownerHint.textContent = ownerAddress
-    ? "Backstop derives the demo position id from backstop-demo + owner."
-    : "Enter a valid EVM address to inspect a Backstop position.";
-
-  updateWalletBadge();
-
-  if (!ownerAddress || !positionId) {
-    setHealthBadge("Invalid Owner", "danger");
-    return;
-  }
-
-  const [vaultPosition, marketPosition, healthFactor, ownerBalance, vaultAllowance, executorLiquidity, reactiveState] =
-    await Promise.all([
-      sepoliaContracts.vault.positions(positionId),
-      sepoliaContracts.lendingMarket.positions(positionId),
-      sepoliaContracts.lendingMarket.healthFactor(positionId),
-      sepoliaContracts.token.balanceOf(ownerAddress),
-      sepoliaContracts.token.allowance(ownerAddress, config.contracts.vault),
-      sepoliaContracts.executor.availableLiquidity(),
-      reactiveContract.protections(positionId),
-    ]);
-
-  const reserveAvailable = vaultPosition[1];
-  const reserveCommitted = vaultPosition[2];
-  const minHealthFactor = vaultPosition[3];
-  const rescueAmount = vaultPosition[4];
-  const cooldownBlocks = vaultPosition[5];
-  const protectionActive = vaultPosition[6];
-
-  const collateralValue = marketPosition[1];
-  const debtOutstanding = marketPosition[2];
-
-  ui.metricHealthFactor.textContent = formatHealth(healthFactor);
-  ui.metricMinHealthFactor.textContent = formatHealth(minHealthFactor);
-  ui.metricDebtOutstanding.textContent = `${formatToken(debtOutstanding)} mUSDC`;
-  ui.metricCollateralValue.textContent = `${formatToken(collateralValue)} mUSDC`;
-  ui.metricReserveAvailable.textContent = `${formatToken(reserveAvailable)} mUSDC`;
-  ui.metricReserveCommitted.textContent = `${formatToken(reserveCommitted)} mUSDC`;
-  ui.metricReactiveReserve.textContent = `${formatToken(reactiveState[3])} mUSDC`;
-  ui.metricExecutorLiquidity.textContent = `${formatToken(executorLiquidity)} mUSDC`;
-  ui.metricOwnerBalance.textContent = `${formatToken(ownerBalance)} mUSDC`;
-  ui.metricVaultAllowance.textContent = `${formatToken(vaultAllowance)} mUSDC`;
-  ui.metricCooldown.textContent = cooldownBlocks.toString();
-  ui.metricProtectionActive.textContent = protectionActive ? "Yes" : "No";
-
-  ui.minHealthFactorInput.value = trimNumber(formatHealthValue(minHealthFactor), 4);
-  ui.rescueAmountInput.value = trimNumber(formatTokenValue(rescueAmount), 4);
-  ui.cooldownBlocksInput.value = cooldownBlocks.toString();
-
-  renderActivity(positionId);
-  renderStatus({
-    healthFactor,
-    minHealthFactor,
-    protectionActive,
-    ownerAddress,
-    debtOutstanding,
-    reserveAvailable,
-  });
-
-  ui.lastRefresh.textContent = new Date().toLocaleTimeString();
-}
-
-function renderStatus({ healthFactor, minHealthFactor, protectionActive, ownerAddress, debtOutstanding, reserveAvailable }) {
-  if (!protectionActive) {
-    setHealthBadge("Inactive", "watch");
-    return;
-  }
-
-  if (debtOutstanding === 0n) {
-    setHealthBadge("Recovered", "safe");
-    return;
-  }
-
-  if (healthFactor <= minHealthFactor) {
-    setHealthBadge("At Risk", "danger");
-    return;
-  }
-
-  const delta = healthFactor - minHealthFactor;
-  if (delta <= ethers.parseUnits("0.1", 18) || reserveAvailable === 0n) {
-    setHealthBadge("Watching", "watch");
-    return;
-  }
-
-  if (state.walletAddress && ownerAddress === state.walletAddress) {
-    setHealthBadge("Protected", "safe");
-    return;
-  }
-
-  setHealthBadge("Healthy", "safe");
-}
-
-async function renderActivity(positionId) {
-  try {
-    const reserveLogs = await sepoliaContracts.vault.queryFilter(
-      sepoliaContracts.vault.filters.ReserveCommitted(positionId),
-      config.proofStartBlock
-    );
-
-    const rescueLogs = await sepoliaContracts.executor.queryFilter(
-      sepoliaContracts.executor.filters.RescueExecuted(positionId),
-      config.proofStartBlock
-    );
-
-    const marketLogs = await sepoliaContracts.lendingMarket.queryFilter(
-      sepoliaContracts.lendingMarket.filters.RescueApplied(positionId),
-      config.proofStartBlock
-    );
-
-    const entries = [];
-
-    if (reserveLogs.length) {
-      const log = reserveLogs.at(-1);
-      entries.push({
-        tone: "safe",
-        title: "Reserve Committed",
-        body: `${formatToken(log.args[1])} mUSDC committed by the vault callback.`,
-        txHash: log.transactionHash,
-      });
-    }
-
-    if (rescueLogs.length) {
-      const log = rescueLogs.at(-1);
-      entries.push({
-        tone: "safe",
-        title: "Rescue Executed",
-        body: `${formatToken(log.args[1])} mUSDC repaid on the debt side.`,
-        txHash: log.transactionHash,
-      });
-    }
-
-    if (marketLogs.length) {
-      const log = marketLogs.at(-1);
-      entries.push({
-        tone: "watch",
-        title: "Market Synced",
-        body: `Debt moved to ${formatToken(log.args[2])} mUSDC with health factor ${formatHealth(log.args[3])}.`,
-        txHash: log.transactionHash,
-      });
-    }
-
-    if (!entries.length) {
-      ui.activityFeed.innerHTML =
-        '<div class="feed-empty">No observed rescue activity yet for this position.</div>';
-      return;
-    }
-
-    ui.activityFeed.innerHTML = entries
-      .map(
-        (entry) => `
-          <article class="feed-item">
-            <div class="feed-item__title">
-              <span>${entry.title}</span>
-              <span class="status-${entry.tone}">${entry.tone.toUpperCase()}</span>
-            </div>
-            <div class="feed-item__meta">
-              ${entry.body}<br />
-              ${txAnchor(entry.txHash, config.networks.sepolia)}
-            </div>
-          </article>
-        `
-      )
-      .join("");
-  } catch (error) {
-    ui.activityFeed.innerHTML = `<div class="feed-empty">${friendlyError(error)}</div>`;
-  }
-}
-
-async function runSepoliaAction(label, callback) {
-  try {
-    const signer = await ensureSepoliaSigner();
-    if (!signer) return;
-
-    const signedContracts = {
-      token: new ethers.Contract(config.contracts.token, tokenAbi, signer),
-      vault: new ethers.Contract(config.contracts.vault, vaultAbi, signer),
-      lendingMarket: new ethers.Contract(config.contracts.lendingMarket, lendingMarketAbi, signer),
-      lendingAdapter: new ethers.Contract(config.contracts.lendingAdapter, lendingAdapterAbi, signer),
-      executor: new ethers.Contract(config.contracts.executor, executorAbi, signer),
-    };
-
-    const { tx } = await callback(signedContracts, state.walletAddress);
-    pushActionUpdate(
-      `${label} Submitted`,
-      "Transaction sent. Waiting for confirmation.",
-      txAnchor(tx.hash, config.networks.sepolia)
-    );
-    await tx.wait();
-    pushActionUpdate(
-      `${label} Confirmed`,
-      "Transaction confirmed on Sepolia.",
-      txAnchor(tx.hash, config.networks.sepolia)
-    );
-    await loadState();
-  } catch (error) {
-    pushFeed(ui.actionFeed, `${label} Failed`, friendlyError(error), "danger");
-  }
-}
-
-async function ensureSepoliaSigner() {
-  if (!state.browserProvider || !state.walletAddress || !state.signer) {
+async function requireSepoliaSigner() {
+  if (!state.browserProvider || !state.signer) {
     await connectWallet();
   }
 
-  if (!state.browserProvider || !state.signer) return null;
-
   const network = await state.browserProvider.getNetwork();
   if (Number(network.chainId) !== config.networks.sepolia.chainId) {
-    pushFeed(
-      ui.actionFeed,
-      "Wrong Network",
-      "Switch your wallet to Ethereum Sepolia before sending write transactions.",
-      "watch"
-    );
-    return null;
+    await switchToSepolia();
+    state.signer = await state.browserProvider.getSigner();
   }
 
   return state.signer;
 }
 
+function currentOwner() {
+  return ethers.getAddress(ui.ownerInput.value.trim() || config.demoOwner);
+}
+
+function currentPositionId() {
+  return ethers.solidityPackedKeccak256(
+    ["string", "address"],
+    ["backstop-demo", currentOwner()]
+  );
+}
+
+function renderStaticLinks() {
+  ui.vaultLink.href = explorerAddressUrl("sepolia", config.contracts.vault);
+  ui.adapterLink.href = explorerAddressUrl("sepolia", config.contracts.adapter);
+  ui.executorLink.href = explorerAddressUrl("sepolia", config.contracts.executor);
+  ui.reactiveContractLink.href = explorerAddressUrl("lasna", config.contracts.reactive);
+  ui.monitorContractLink.href = explorerAddressUrl("lasna", config.contracts.monitor);
+  ui.poolLink.href = explorerAddressUrl("sepolia", config.aavePool);
+}
+
 function renderProofLinks() {
-  ui.proofLinks.innerHTML = config.proofLinks
-    .map(
-      (item) => `
-        <a class="proof-link" href="${item.url}" target="_blank" rel="noreferrer">
-          <span class="proof-link__label">${item.label}</span>
-          <span class="proof-link__hash">${shortHash(item.hash)}</span>
-        </a>
-      `
-    )
-    .join("");
+  ui.proofLinks.innerHTML = "";
+
+  for (const item of config.proofLinks) {
+    const anchor = document.createElement("a");
+    anchor.className = "proof-link";
+    anchor.target = "_blank";
+    anchor.rel = "noreferrer";
+
+    const label = document.createElement("span");
+    label.className = "proof-link__label";
+    label.textContent = item.label;
+
+    const hash = document.createElement("span");
+    hash.className = "proof-link__hash";
+
+    if (item.hash) {
+      anchor.href = explorerTxUrl(item.network, item.hash);
+      hash.textContent = shortHash(item.hash);
+    } else {
+      anchor.href = explorerAddressUrl(item.network, item.address);
+      hash.textContent = shortAddress(item.address);
+    }
+
+    anchor.append(label, hash);
+    ui.proofLinks.append(anchor);
+  }
 }
 
-function pushActionUpdate(title, body, linkHtml) {
-  pushFeed(ui.actionFeed, title, `${body}${linkHtml ? `<br />${linkHtml}` : ""}`, "safe");
+function pushFeed(title, body, tone = "neutral", link = null) {
+  state.feed.unshift({
+    title,
+    body,
+    tone,
+    link,
+    at: new Date(),
+  });
+  state.feed = state.feed.slice(0, 10);
+  renderFeed();
 }
 
-function pushFeed(target, title, body, tone) {
-  const item = document.createElement("article");
-  item.className = "feed-item";
-  item.innerHTML = `
-    <div class="feed-item__title">
-      <span>${title}</span>
-      <span class="status-${tone}">${tone.toUpperCase()}</span>
-    </div>
-    <div class="feed-item__meta">${body}</div>
-  `;
+function renderFeed() {
+  ui.activityFeed.innerHTML = "";
 
-  if (target.textContent === "No wallet actions yet.") {
-    target.innerHTML = "";
+  if (!state.feed.length) {
+    const empty = document.createElement("div");
+    empty.className = "feed-empty";
+    empty.textContent = "No activity yet.";
+    ui.activityFeed.append(empty);
+    return;
   }
 
-  target.prepend(item);
+  for (const item of state.feed) {
+    const entry = document.createElement("article");
+    entry.className = "feed-item";
+
+    const title = document.createElement("div");
+    title.className = `feed-item__title ${statusClass(item.tone)}`;
+    title.textContent = item.title;
+
+    const body = document.createElement("div");
+    body.textContent = item.body;
+
+    const meta = document.createElement("div");
+    meta.className = "feed-item__meta";
+
+    const parts = [
+      item.at.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+    ];
+
+    if (item.link) {
+      const anchor = document.createElement("a");
+      anchor.href = item.link.href;
+      anchor.target = "_blank";
+      anchor.rel = "noreferrer";
+      anchor.textContent = item.link.label;
+      meta.append(anchor);
+      meta.append(document.createTextNode(" / "));
+    }
+
+    meta.append(parts.join(" / "));
+    entry.append(title, body, meta);
+    ui.activityFeed.append(entry);
+  }
+}
+
+function computeExpectedDecision({
+  active,
+  minHealthFactor,
+  rescueAmount,
+  availableReserve,
+  healthFactor,
+  debtOutstanding,
+  backstopDebt,
+}) {
+  if (!active) {
+    return { label: "Inactive", healthLabel: "Inactive", tone: "watch" };
+  }
+
+  if (healthFactor === null || debtOutstanding === null) {
+    return { label: "Waiting For Sync", healthLabel: "Waiting For Sync", tone: "watch" };
+  }
+
+  if (backstopDebt > 0n) {
+    return { label: "Blocked By Lasna Debt", healthLabel: "Blocked By Lasna Debt", tone: "danger" };
+  }
+
+  if (healthFactor > minHealthFactor) {
+    return { label: "Healthy", healthLabel: "Healthy", tone: "safe" };
+  }
+
+  if (availableReserve < rescueAmount || availableReserve === 0n) {
+    return { label: "Reserve Too Low", healthLabel: "Reserve Too Low", tone: "danger" };
+  }
+
+  return { label: "Trigger Ready", healthLabel: "Trigger Ready", tone: "danger" };
 }
 
 function updateWalletBadge() {
@@ -626,26 +574,54 @@ function updateWalletBadge() {
     : "Not connected";
 }
 
-function setHealthBadge(text, tone) {
-  ui.healthBadge.textContent = text;
-  ui.healthBadge.className = `status-card__value status-${tone}`;
+function setStatus(element, text, tone) {
+  element.textContent = text;
+  element.classList.remove("status-safe", "status-watch", "status-danger");
+  element.classList.add(statusClass(tone));
 }
 
-function normalizedOwner() {
-  const value = ui.ownerInput.value.trim();
-  if (!ethers.isAddress(value)) return null;
-  return ethers.getAddress(value);
+function statusClass(tone) {
+  if (tone === "safe") return "status-safe";
+  if (tone === "danger") return "status-danger";
+  return "status-watch";
 }
 
-function currentPositionId() {
-  return positionIdFor(normalizedOwner());
+function explorerTxUrl(networkKey, hash) {
+  return `${config.networks[networkKey].explorerTx}${hash}`;
 }
 
-function positionIdFor(owner) {
-  if (!owner) return null;
-  return ethers.keccak256(
-    ethers.solidityPacked(["string", "address"], ["backstop-demo", owner])
-  );
+function explorerAddressUrl(networkKey, address) {
+  return `${config.networks[networkKey].explorerAddress}${address}`;
+}
+
+function shortAddress(address) {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+function shortHash(hash) {
+  return `${hash.slice(0, 10)}...${hash.slice(-6)}`;
+}
+
+function formatToken(value) {
+  return `${Number(ethers.formatUnits(value, 6)).toLocaleString(undefined, {
+    maximumFractionDigits: 2,
+  })} USDC`;
+}
+
+function formatTokenInput(value) {
+  return Number(ethers.formatUnits(value, 6)).toString();
+}
+
+function formatHealthFactor(value) {
+  return Number(ethers.formatUnits(value, 18)).toFixed(3);
+}
+
+function formatHealthFactorInput(value) {
+  return Number(ethers.formatUnits(value, 18)).toString();
+}
+
+function formatEtherValue(value) {
+  return `${Number(ethers.formatEther(value)).toFixed(6)} REACT`;
 }
 
 function parseToken(value) {
@@ -656,48 +632,19 @@ function parseHealthFactor(value) {
   return ethers.parseUnits((value || "0").trim(), 18);
 }
 
-function formatToken(value) {
-  return trimNumber(ethers.formatUnits(value ?? 0n, 6), 2);
-}
-
-function formatTokenValue(value) {
-  return ethers.formatUnits(value ?? 0n, 6);
-}
-
-function formatHealth(value) {
-  return `${trimNumber(formatHealthValue(value), 2)}x`;
-}
-
-function formatHealthValue(value) {
-  return ethers.formatUnits(value ?? 0n, 18);
-}
-
-function trimNumber(value, decimals) {
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return value;
-  return numeric.toFixed(decimals).replace(/\.?0+$/, "");
-}
-
-function shortHash(value) {
-  if (!value) return "-";
-  return `${value.slice(0, 10)}…${value.slice(-8)}`;
-}
-
-function shortAddress(value) {
-  if (!value) return "-";
-  return `${value.slice(0, 6)}…${value.slice(-4)}`;
-}
-
-function txAnchor(txHash, network) {
-  return `<a href="${network.explorerTx}${txHash}" target="_blank" rel="noreferrer">${shortHash(
-    txHash
-  )}</a>`;
-}
-
 function friendlyError(error) {
-  return error?.shortMessage || error?.reason || error?.message || String(error);
+  const message =
+    error?.shortMessage ||
+    error?.reason ||
+    error?.message ||
+    "Unexpected failure";
+  return message.replace(/^execution reverted: /i, "");
 }
 
 function byId(id) {
-  return document.getElementById(id);
+  const element = document.getElementById(id);
+  if (!element) {
+    throw new Error(`Missing element #${id}`);
+  }
+  return element;
 }

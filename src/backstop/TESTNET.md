@@ -221,6 +221,7 @@ What is still blocked:
 
 - the reserve callback now succeeds after replaying Aave vault state
 - the executor callback is still failing on Sepolia for the Aave path
+- the older Lasna Backstop contract currently carries unpaid system debt, which blocks the cleanest rerun on that stack
 
 Observed Sepolia state after the latest live sync:
 
@@ -234,8 +235,12 @@ Latest debugging proof set:
 - `Replay Aave protection config`: `0x8a740c5345b149f64784186cad9ede3515d92220e830b11b7ff3e0f88f42cb82`
 - `Replay Aave reserve update`: `0x5d86b3b239553650f5ac2287aa798c069c37a76e1d1934e711350b3477acf1ee`
 - `Manual Aave syncPosition`: `0x3e13e37385fab8380e2cfeb5ca202c4fffdbfcbf70d74de3166fe3a313fd2303`
+- `Latest syncPosition rerun`: `0xe3b0138ccdc860365c78e82e04c0818ff6ee24842d302aec7cb98464dff69176`
 - `Reserve commit callback success`: `0x6126d5e66dc7f6ae6f085f6667b16c16dba6e48afdff046da27fe6c78521f033`
 - `Executor callback failure`: `0xf30bb8470e36c45164221e2d407725f2fe1a588996b2424a70bc3caa005f6016`
+- `Latest Sepolia replay protection`: `0x99ed3c184a4bda32ffbf90b9e5ea29d5d8ec56863ca809778a61dd0c91b6208f`
+- `Latest Sepolia replay reserve`: `0x91b93813d9e5358818aaefde6c7b33e59b0fa5b59556b2edc0d56e1b4ba3a5bb`
+- `Sepolia -> Lasna faucet request for deployer`: `0xe9bab491204cb746568422adf4526f6af6d3becfa54089d645c84702b972447e`
 
 Callback-failure diagnosis:
 
@@ -244,12 +249,26 @@ Callback-failure diagnosis:
 - simulating the exact executor call from the callback proxy succeeds
 - gas simulation shows the call reverts below roughly `300k`
 - the current Aave Lasna deployment used a `500k` callback gas limit, which appears too tight once callback-proxy overhead is included
+- querying `protections(positionId)` on the top-level Lasna Backstop contract is not a valid mirror-health check because ReactVM state is separate from top-level Reactive contract storage
+- the right live inspection targets are Sepolia callback transactions, Lasna contract balance/debt, and Reactscan RVM traces
+- the older Aave Backstop contract currently shows about `0.02 REACT` balance and about `0.0044185 REACT` unpaid debt
+- the latest rerun emitted a fresh `HealthFactorUpdated` event on Sepolia, but the vault and executor balances stayed unchanged afterward, so the current blocker is between event emission and callback posting on Lasna
 
 Recommended next live attempt:
 
+- use `CoverBackstopReactiveDebt.s.sol` after the Lasna deployer receives enough REACT to clear outstanding debt
 - redeploy the Aave Backstop reactive contract with `BACKSTOP_AAVE_CALLBACK_GAS_LIMIT=1000000`
 - replay the Aave vault state
 - use `SyncBackstopAavePosition.s.sol` to emit a fresh `HealthFactorUpdated`
+
+Useful live-debug commands:
+
+```bash
+forge script script/InspectBackstopAaveState.s.sol:InspectBackstopAaveState
+forge script script/CoverBackstopReactiveDebt.s.sol:CoverBackstopReactiveDebt \
+  --rpc-url "$REACTIVE_RPC" \
+  --broadcast
+```
 
 This means the live Aave integration is now narrowed to a concrete runtime constraint, not an unknown architecture issue.
 

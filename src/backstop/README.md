@@ -83,6 +83,7 @@ The important thing this project proves is not a production bridge. It proves th
    - protection thresholds
    - rescue amount
    - available reserve
+   - inside ReactVM rather than the top-level Lasna contract storage
 4. A lending position on the debt chain emits a degraded `HealthFactorUpdated` event.
 5. The Reactive contract checks:
    - protection is active
@@ -115,6 +116,8 @@ The current tests prove:
 - static Reactive subscriptions are registered
 - rescue fires when health factor falls below threshold
 - rescue is skipped if reserve is insufficient
+- preview logic reports cooldown correctly
+- the Aave adapter exposes live health-factor and debt reads
 
 ## Next Steps
 
@@ -163,10 +166,13 @@ Current status:
 
 Latest diagnosis:
 
+- reading `protections(positionId)` on the top-level Lasna contract is a false diagnostic because ReactVM state is separate from the top-level Reactive contract state
+- the right live signals are Sepolia callback transactions, Lasna balance/debt, and RVM execution traces
 - replaying the Aave vault state and forcing a fresh `syncPosition(...)` produced a live `ReserveCommitted` callback on Sepolia
 - the paired executor callback was dispatched by the Sepolia callback proxy but failed with `CallbackFailure(address,bytes)`
 - simulating `executeRescue(...)` against the live executor succeeds once the gas cap reaches about `300k`
 - the current Aave Lasna deploy used a `500k` callback gas budget, which appears too tight once proxy overhead is included
+- a fresh `syncPosition(...)` rerun on March 27, 2026 emitted `HealthFactorUpdated` on Sepolia again, but the reserve and executor balances remained unchanged afterward
 - a clean Lasna deploy under a fresh EOA succeeds on-chain when sent as a raw `CREATE`; Foundry's local constructor execution falsely reverts on `service.subscribe(...)`
 - Aave Sepolia `Borrow` events surface the tracked user in `topic_2`, so the monitor now subscribes to both `topic_2` and `topic_3`
 - after a manual Sepolia `syncPosition(...)` on the fresh stack, the adapter emits `HealthFactorUpdated` but the fresh Backstop RSC still does not post Sepolia reserve/executor callbacks
@@ -176,6 +182,12 @@ That means the protocol integration work is real and reusable, and the next live
 - redeploy the Aave Backstop reactive contract with a higher callback gas limit
 - use the patched monitor on the next clean deployment
 - continue debugging the fresh Lasna Backstop ingestion/runtime path after normalized adapter events
+- keep Lasna Backstop debt covered before replaying or rerunning the live rescue path
+
+Useful debugging scripts:
+
+- [InspectBackstopAaveState.s.sol](../../script/InspectBackstopAaveState.s.sol)
+- [CoverBackstopReactiveDebt.s.sol](../../script/CoverBackstopReactiveDebt.s.sol)
 
 ## Demo Dashboard
 
@@ -197,12 +209,9 @@ Then open `http://localhost:4173`.
 The dashboard:
 
 - reads live Sepolia and Lasna state through a local RPC proxy
-- shows the live proof transaction set
-- supports Sepolia wallet actions for the demo flow:
-  - mint demo funds
-  - fund executor liquidity
-  - open a demo position
-  - configure protection
-  - approve and deposit reserve
-  - replay state
-  - trigger a risk event
+- shows the live Aave proof transaction set
+- focuses on the current Sepolia + Lasna deployment rather than the earlier mock demo
+- supports the minimum useful Sepolia actions for a live rerun:
+  - replay protection
+  - replay reserve
+  - sync position

@@ -236,6 +236,11 @@ contract AaveBackstopContractsTest is Test {
         assertEq(mockPool.healthFactorByUser(alice), 1.2e18);
     }
 
+    function testAdapterExposesLiveHealthFactorAndDebt() public view {
+        assertEq(adapter.getLiveHealthFactor(POSITION_ID), 0.9e18);
+        assertEq(adapter.getLiveDebtOutstanding(POSITION_ID), 100_000_000);
+    }
+
     function _logRecord(
         uint256 chainId,
         address source,

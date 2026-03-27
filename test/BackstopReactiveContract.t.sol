@@ -162,11 +162,12 @@ contract BackstopReactiveContractTest is Test {
         ));
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        assertEq(entries.length, 3);
+        assertEq(entries.length, 4);
 
-        assertEq(uint256(entries[0].topics[0]), uint256(keccak256("RescueTriggered(bytes32,uint256,uint256,uint256)")));
-        assertEq(uint256(entries[1].topics[0]), uint256(keccak256("Callback(uint256,address,uint64,bytes)")));
+        assertEq(uint256(entries[0].topics[0]), uint256(keccak256("RescueEvaluation(bytes32,uint8,uint256,uint256,uint256,uint256,uint256,uint256,uint256)")));
+        assertEq(uint256(entries[1].topics[0]), uint256(keccak256("RescueTriggered(bytes32,uint256,uint256,uint256)")));
         assertEq(uint256(entries[2].topics[0]), uint256(keccak256("Callback(uint256,address,uint64,bytes)")));
+        assertEq(uint256(entries[3].topics[0]), uint256(keccak256("Callback(uint256,address,uint64,bytes)")));
 
         (
             uint256 minHealthFactor,
@@ -232,8 +233,9 @@ contract BackstopReactiveContractTest is Test {
         ));
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
-        assertEq(entries.length, 1);
-        assertEq(uint256(entries[0].topics[0]), uint256(keccak256("RescueSkipped(bytes32,uint8,uint256,uint256)")));
+        assertEq(entries.length, 2);
+        assertEq(uint256(entries[0].topics[0]), uint256(keccak256("RescueEvaluation(bytes32,uint8,uint256,uint256,uint256,uint256,uint256,uint256,uint256)")));
+        assertEq(uint256(entries[1].topics[0]), uint256(keccak256("RescueSkipped(bytes32,uint8,uint256,uint256)")));
 
         (
             ,
@@ -249,6 +251,33 @@ contract BackstopReactiveContractTest is Test {
         assertEq(committedReserve, 0);
         assertEq(lastRescueBlock, 0);
         assertTrue(active);
+    }
+
+    function testPreviewRescueReturnsCooldownDecision() public {
+        _mirrorProtection();
+        _mirrorReserveUpdate(RESCUE_AMOUNT * 2, 0);
+
+        vm.prank(alice);
+        lendingAdapter.updateCollateralValue(POSITION_ID, 90_000_000);
+
+        uint256 riskHealthFactor = lendingMarket.healthFactor(POSITION_ID);
+
+        reactVmInstance.react(_logRecord(
+            DEBT_CHAIN_ID,
+            address(lendingAdapter),
+            reactVmInstance.HEALTH_FACTOR_UPDATED_TOPIC_0(),
+            uint256(POSITION_ID),
+            abi.encode(riskHealthFactor, 100_000_000),
+            200
+        ));
+
+        (uint8 decision, uint256 repayAmount, uint256 reserveAfter, uint256 committedAfter) =
+            reactVmInstance.previewRescue(POSITION_ID, riskHealthFactor, 75_000_000, 210);
+
+        assertEq(decision, reactVmInstance.REASON_COOLDOWN_ACTIVE());
+        assertEq(repayAmount, 0);
+        assertEq(reserveAfter, RESCUE_AMOUNT);
+        assertEq(committedAfter, RESCUE_AMOUNT);
     }
 
     function _mirrorProtection() internal {

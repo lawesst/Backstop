@@ -6,114 +6,72 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <title>Backstop Control Room</title>
+    <title>Backstop</title>
     <meta
       name="description"
-      content="Backstop demo dashboard for Sepolia and Reactive Lasna."
+      content="Minimal live dashboard for the Backstop Aave Sepolia plus Reactive Lasna flow."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="backdrop backdrop--north"></div>
-    <div class="backdrop backdrop--south"></div>
-
-    <div class="shell">
-      <header class="masthead">
-        <div class="masthead__copy">
-          <div class="eyebrow">Reactive Network / Sepolia + Lasna</div>
+    <main class="app">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Reactive Network / Aave Sepolia / Lasna</p>
           <h1>Backstop</h1>
           <p class="lead">
-            Autonomous cross-chain liquidation protection for on-chain borrowers.
+            Minimal live status page for the cross-chain liquidation protection
+            flow.
           </p>
-          <p class="hero-text">
-            This control surface is built for demos, reviews, and grant screens.
-            It shows the full rescue story in one place: monitored position,
-            proof transactions, live protocol state, and the actions needed to
-            arm or trigger the flow.
-          </p>
-
-          <div class="hero-actions">
-            <button id="connectWallet" class="button button--primary">
-              Connect Wallet
-            </button>
-            <button id="switchSepolia" class="button button--secondary">
-              Switch to Sepolia
-            </button>
-            <button id="refreshState" class="button button--ghost">
-              Refresh State
-            </button>
-          </div>
         </div>
 
-        <div class="signal-card">
-          <div class="signal-card__header">
-            <span class="signal-card__label">Rescue Loop</span>
-            <span class="signal-card__network">Cross-chain</span>
-          </div>
-          <div class="signal-flow">
-            <div class="signal-flow__step">
-              <span class="signal-flow__index">01</span>
-              <div>
-                <strong>Observe risk</strong>
-                <p>Watch health-factor changes on Sepolia.</p>
-              </div>
-            </div>
-            <div class="signal-flow__step">
-              <span class="signal-flow__index">02</span>
-              <div>
-                <strong>React on Lasna</strong>
-                <p>Compute the rescue intent inside the Reactive contract.</p>
-              </div>
-            </div>
-            <div class="signal-flow__step">
-              <span class="signal-flow__index">03</span>
-              <div>
-                <strong>Execute protection</strong>
-                <p>Commit reserves and repay debt automatically.</p>
-              </div>
-            </div>
-          </div>
+        <div class="toolbar">
+          <button id="connectWallet" class="button button--primary">
+            Connect Wallet
+          </button>
+          <button id="switchSepolia" class="button">Switch Sepolia</button>
+          <button id="refreshState" class="button">Refresh</button>
         </div>
       </header>
 
-      <section class="status-strip">
-        <article class="status-card">
-          <span class="status-card__label">Wallet</span>
-          <strong id="walletAddress" class="status-card__value">Not connected</strong>
-        </article>
-        <article class="status-card">
-          <span class="status-card__label">Tracked Owner</span>
-          <strong id="trackedOwnerBadge" class="status-card__value">Loading</strong>
-        </article>
-        <article class="status-card">
-          <span class="status-card__label">Protection State</span>
-          <strong id="healthBadge" class="status-card__value status-safe">Loading</strong>
-        </article>
-        <article class="status-card">
-          <span class="status-card__label">Last Refresh</span>
-          <strong id="lastRefresh" class="status-card__value">Never</strong>
-        </article>
+      <section class="banner">
+        <div>
+          <span class="label">Wallet</span>
+          <strong id="walletAddress">Not connected</strong>
+        </div>
+        <div>
+          <span class="label">Tracked Owner</span>
+          <strong id="trackedOwnerBadge">Loading</strong>
+        </div>
+        <div>
+          <span class="label">Position Status</span>
+          <strong id="healthBadge">Loading</strong>
+        </div>
+        <div>
+          <span class="label">Last Refresh</span>
+          <strong id="lastRefresh">Never</strong>
+        </div>
       </section>
 
-      <main class="layout">
-        <section class="panel panel--position">
-          <div class="panel__header">
-            <div>
-              <span class="panel__eyebrow">Tracked Position</span>
-              <h2>Protection Brief</h2>
-            </div>
-            <button id="useConnectedWallet" class="text-button">
-              Use Connected Wallet
-            </button>
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">Tracked Position</p>
+            <h2>Live Stack</h2>
           </div>
+          <button id="useConnectedWallet" class="text-button">
+            Use Connected Wallet
+          </button>
+        </div>
 
-          <label class="field">
+        <div class="field-row">
+          <label class="field field--wide">
             <span>Owner Address</span>
             <input
               id="ownerAddressInput"
@@ -122,262 +80,170 @@
               autocomplete="off"
             />
           </label>
-
-          <div class="brief-grid">
-            <article class="brief-card">
-              <span>Position ID</span>
-              <code id="positionIdValue">-</code>
-            </article>
-            <article class="brief-card">
-              <span>Reactive Contract</span>
-              <a
-                id="reactiveContractLink"
-                href="#"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open Reactscan
-              </a>
-            </article>
-            <article class="brief-card brief-card--wide">
-              <span>Tracked Contracts</span>
-              <div id="contractSummary" class="brief-card__summary">
-                Vault, adapter, market, executor
-              </div>
-            </article>
+          <div class="field readonly">
+            <span>Position ID</span>
+            <code id="positionIdValue">-</code>
           </div>
-
-          <div id="ownerHint" class="note">
-            Use the live demo owner or switch to your connected Sepolia wallet.
+          <div class="field readonly">
+            <span>Expected Rescue</span>
+            <strong id="expectedDecision">-</strong>
           </div>
-        </section>
+        </div>
 
-        <section class="panel panel--proof">
+        <div class="contracts">
+          <article class="contract-card">
+            <span>Vault</span>
+            <a id="vaultLink" href="#" target="_blank" rel="noreferrer">Open</a>
+          </article>
+          <article class="contract-card">
+            <span>Adapter</span>
+            <a id="adapterLink" href="#" target="_blank" rel="noreferrer">Open</a>
+          </article>
+          <article class="contract-card">
+            <span>Executor</span>
+            <a id="executorLink" href="#" target="_blank" rel="noreferrer">Open</a>
+          </article>
+          <article class="contract-card">
+            <span>Backstop RSC</span>
+            <a id="reactiveContractLink" href="#" target="_blank" rel="noreferrer">Open</a>
+          </article>
+          <article class="contract-card">
+            <span>Monitor RSC</span>
+            <a id="monitorContractLink" href="#" target="_blank" rel="noreferrer">Open</a>
+          </article>
+          <article class="contract-card">
+            <span>Aave Pool</span>
+            <a id="poolLink" href="#" target="_blank" rel="noreferrer">Open</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">Current State</p>
+            <h2>Metrics</h2>
+          </div>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card metric-card--strong">
+            <span>Health Factor</span>
+            <strong id="metricHealthFactor">-</strong>
+            <small>Threshold <span id="metricMinHealthFactor">-</span></small>
+          </article>
+          <article class="metric-card">
+            <span>Debt Outstanding</span>
+            <strong id="metricDebtOutstanding">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Vault Available</span>
+            <strong id="metricReserveAvailable">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Vault Committed</span>
+            <strong id="metricReserveCommitted">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Executor Liquidity</span>
+            <strong id="metricExecutorLiquidity">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Owner USDC</span>
+            <strong id="metricOwnerBalance">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Vault Allowance</span>
+            <strong id="metricVaultAllowance">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Callback Gas</span>
+            <strong id="metricCallbackGas">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Backstop Balance</span>
+            <strong id="metricBackstopBalance">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Backstop Debt</span>
+            <strong id="metricBackstopDebt">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Monitor Watched</span>
+            <strong id="metricMonitorWatch">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Monitor Debt</span>
+            <strong id="metricMonitorDebt">-</strong>
+          </article>
+        </div>
+
+        <p id="noteTopLevelState" class="note">
+          ReactVM state is separate from the top-level Lasna contract. Top-level
+          storage reads are not used here as a mirror-health signal.
+        </p>
+      </section>
+
+      <section class="two-up">
+        <section class="panel">
           <div class="panel__header">
             <div>
-              <span class="panel__eyebrow">Proof Set</span>
-              <h2>Live Run Evidence</h2>
+              <p class="section-label">Operations</p>
+              <h2>Replay + Sync</h2>
             </div>
-            <span class="subtle">March 27, 2026</span>
           </div>
 
-          <p class="panel-copy">
-            Open the on-chain trail from the triggering event through the
-            Reactive execution path and back to Sepolia callbacks.
+          <div class="field-row field-row--compact">
+            <label class="field">
+              <span>Min Health Factor</span>
+              <input id="minHealthFactorInput" type="text" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Rescue Amount (USDC)</span>
+              <input id="rescueAmountInput" type="text" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Cooldown Blocks</span>
+              <input id="cooldownBlocksInput" type="number" min="0" step="1" />
+            </label>
+          </div>
+
+          <div class="action-row">
+            <button id="replayProtection" class="button button--primary">
+              Replay Protection
+            </button>
+            <button id="replayReserve" class="button">Replay Reserve</button>
+            <button id="syncPosition" class="button">Sync Position</button>
+          </div>
+
+          <p class="subtle">
+            These writes target the current owner on Sepolia and are enough to
+            rerun the live Aave monitoring path without using the old mock setup.
           </p>
+        </section>
+
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <p class="section-label">Proof</p>
+              <h2>Recent Transactions</h2>
+            </div>
+          </div>
 
           <div id="proofLinks" class="proof-list"></div>
         </section>
+      </section>
 
-        <section class="panel panel--wide">
-          <div class="panel__header">
-            <div>
-              <span class="panel__eyebrow">System Snapshot</span>
-              <h2>Live Risk State</h2>
-            </div>
-            <span class="subtle">Read from Sepolia and Lasna</span>
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">Activity</p>
+            <h2>Feed</h2>
           </div>
-
-          <div class="snapshot-grid">
-            <article class="snapshot-card snapshot-card--primary">
-              <span class="snapshot-card__label">Health Factor</span>
-              <strong id="metricHealthFactor" class="snapshot-card__value">-</strong>
-              <p>
-                Threshold
-                <span id="metricMinHealthFactor" class="snapshot-card__inline">-</span>
-              </p>
-            </article>
-
-            <article class="snapshot-card">
-              <span class="snapshot-card__label">Debt Outstanding</span>
-              <strong id="metricDebtOutstanding" class="snapshot-card__value">-</strong>
-              <p>Protected debt currently at risk.</p>
-            </article>
-
-            <article class="snapshot-card">
-              <span class="snapshot-card__label">Collateral Value</span>
-              <strong id="metricCollateralValue" class="snapshot-card__value">-</strong>
-              <p>Collateral tracked for the current position.</p>
-            </article>
-
-            <article class="snapshot-card snapshot-card--accent">
-              <span class="snapshot-card__label">Reserve Available</span>
-              <strong id="metricReserveAvailable" class="snapshot-card__value">-</strong>
-              <p>Capital ready to deploy from the reserve vault.</p>
-            </article>
-          </div>
-
-          <div class="detail-grid">
-            <article class="detail-card">
-              <span class="detail-card__label">Vault Reserve Committed</span>
-              <strong id="metricReserveCommitted">-</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-card__label">Reactive Reserve Mirror</span>
-              <strong id="metricReactiveReserve">-</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-card__label">Executor Liquidity</span>
-              <strong id="metricExecutorLiquidity">-</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-card__label">Owner mUSDC</span>
-              <strong id="metricOwnerBalance">-</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-card__label">Vault Allowance</span>
-              <strong id="metricVaultAllowance">-</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-card__label">Cooldown Blocks</span>
-              <strong id="metricCooldown">-</strong>
-            </article>
-            <article class="detail-card">
-              <span class="detail-card__label">Protection Active</span>
-              <strong id="metricProtectionActive">-</strong>
-            </article>
-          </div>
-        </section>
-
-        <section class="panel panel--wide">
-          <div class="panel__header">
-            <div>
-              <span class="panel__eyebrow">Demo Controls</span>
-              <h2>Operate The Backstop Flow</h2>
-            </div>
-            <span class="subtle">All writes target the current owner on Sepolia</span>
-          </div>
-
-          <div class="action-layout">
-            <section class="action-card">
-              <div class="action-card__top">
-                <span class="action-card__index">01</span>
-                <div>
-                  <h3>Seed Demo State</h3>
-                  <p>Mint demo funds, top up executor liquidity, and open the tracked position.</p>
-                </div>
-              </div>
-
-              <label class="field">
-                <span>Mint Amount (mUSDC)</span>
-                <input id="mintAmountInput" type="text" value="150" />
-              </label>
-              <button id="mintDemoFunds" class="button button--ghost">
-                Mint Demo Funds
-              </button>
-
-              <label class="field">
-                <span>Executor Funding (mUSDC)</span>
-                <input id="executorFundingInput" type="text" value="25" />
-              </label>
-              <button id="fundExecutor" class="button button--ghost">
-                Fund Executor
-              </button>
-
-              <label class="field">
-                <span>Open Position Collateral (mUSDC)</span>
-                <input id="openCollateralInput" type="text" value="150" />
-              </label>
-              <label class="field">
-                <span>Open Position Debt (mUSDC)</span>
-                <input id="openDebtInput" type="text" value="100" />
-              </label>
-              <button id="openPosition" class="button button--secondary">
-                Open Demo Position
-              </button>
-            </section>
-
-            <section class="action-card">
-              <div class="action-card__top">
-                <span class="action-card__index">02</span>
-                <div>
-                  <h3>Arm Protection</h3>
-                  <p>Set the health threshold, reserve size, and replay the mirrored state if needed.</p>
-                </div>
-              </div>
-
-              <label class="field">
-                <span>Min Health Factor</span>
-                <input id="minHealthFactorInput" type="text" value="1.15" />
-              </label>
-              <label class="field">
-                <span>Rescue Amount (mUSDC)</span>
-                <input id="rescueAmountInput" type="text" value="25" />
-              </label>
-              <label class="field">
-                <span>Cooldown Blocks</span>
-                <input id="cooldownBlocksInput" type="number" value="25" />
-              </label>
-              <button id="configureProtection" class="button button--primary">
-                Configure Protection
-              </button>
-
-              <label class="field">
-                <span>Reserve Deposit (mUSDC)</span>
-                <input id="reserveDepositInput" type="text" value="50" />
-              </label>
-              <div class="button-stack">
-                <button id="approveVault" class="button button--ghost">
-                  Approve Vault
-                </button>
-                <button id="depositReserve" class="button button--secondary">
-                  Deposit Reserve
-                </button>
-                <button id="replayState" class="button button--ghost">
-                  Replay State
-                </button>
-              </div>
-            </section>
-
-            <section class="action-card action-card--danger">
-              <div class="action-card__top">
-                <span class="action-card__index">03</span>
-                <div>
-                  <h3>Trigger Risk</h3>
-                  <p>
-                    Simulate the health-factor break so the Sepolia adapter can kick off the Reactive path.
-                  </p>
-                </div>
-              </div>
-
-              <label class="field">
-                <span>Risk Collateral Value (mUSDC)</span>
-                <input id="riskCollateralInput" type="text" value="90" />
-              </label>
-              <button id="triggerRisk" class="button button--danger">
-                Trigger Risk Event
-              </button>
-
-              <div class="note note--warning">
-                This calls the Sepolia adapter directly. If the tracked position is
-                protected and funded, the Lasna RSC should post the callbacks and
-                the rescue should follow automatically.
-              </div>
-            </section>
-          </div>
-
-          <div class="feed-shell">
-            <div class="feed-shell__header">
-              <span class="panel__eyebrow">Action Feed</span>
-              <span class="subtle">Wallet transactions and confirmations</span>
-            </div>
-            <div id="actionFeed" class="action-feed">No wallet actions yet.</div>
-          </div>
-        </section>
-
-        <section class="panel panel--wide">
-          <div class="panel__header">
-            <div>
-              <span class="panel__eyebrow">Observed Activity</span>
-              <h2>Latest Position Logs</h2>
-            </div>
-            <span class="subtle">Most recent rescue-related events for the tracked position</span>
-          </div>
-
-          <div id="activityFeed" class="activity-feed">Loading activity…</div>
-        </section>
-      </main>
-    </div>
+        </div>
+        <div id="activityFeed" class="feed"></div>
+      </section>
+    </main>
 
     <script type="module" src="./app.js"></script>
   </body>

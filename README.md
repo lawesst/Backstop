@@ -37,6 +37,27 @@ Observed end state:
 
 ## Architecture
 
+```mermaid
+flowchart LR
+    User["Borrower / Operator"] -->|Configure protection and fund reserve| Vault["BackstopVault<br/>Sepolia"]
+    User -->|Open or manage borrow position| Aave["Aave V3 Pool<br/>Sepolia"]
+
+    Aave -->|Account-changing events| Monitor["AavePositionMonitorReactiveContract<br/>Lasna"]
+    Monitor -->|Callback: syncAccountFromReactive| Proxy["Sepolia Callback Proxy"]
+    Proxy --> Adapter["AaveV3BackstopAdapter<br/>Sepolia"]
+
+    Vault -->|ProtectionConfigured / ReserveUpdated| RSC["BackstopReactiveContract<br/>ReactVM / Lasna"]
+    Adapter -->|HealthFactorUpdated| RSC
+
+    RSC -->|Callback: commitReserve| Proxy
+    Proxy --> Vault
+
+    RSC -->|Callback: executeRescue| Proxy
+    Proxy --> Executor["AaveV3BackstopExecutor<br/>Sepolia"]
+    Executor -->|Repay debt| Aave
+    Executor -->|Resync position| Adapter
+```
+
 - `BackstopVault`
   - stores protection policy and reserve balances
   - accepts reserve-commit callbacks from Reactive
@@ -109,9 +130,16 @@ Then open `http://localhost:4173`.
 - testnet runbook and proof history: `src/backstop/TESTNET.md`
 - example environment file: `.env.backstop.example`
 
-## Current Follow-Up Work
+## Known Hardening Work
 
-- make the clean-stack Aave path one-command reproducible
-- automate callback-proxy top-ups and Lasna debt coverage
-- add reserve replenishment through a settlement or bridge layer
-- extend support beyond a single borrower and market configuration
+- `Automate Lasna coverDebt()`
+  - add a pre-flight and post-run maintenance step that checks the Reactive contract debt and settles it before additional rescue cycles are triggered.
+
+- `Automate callback-proxy top-ups`
+  - add balance checks and deterministic top-ups for the Sepolia callback targets so reserve and rescue callbacks stay funded across repeated runs.
+
+- `Make the clean-stack path one-command reproducible`
+  - fold Sepolia deploy, raw Lasna deploy, watcher registration, reserve seeding, callback funding, and health-check scripts into a single reproducible orchestration flow.
+
+- `Next product hardening`
+  - add reserve replenishment through a settlement or bridge layer and extend support beyond a single borrower and market configuration.

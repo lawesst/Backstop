@@ -143,6 +143,17 @@ Implementation notes from the live path:
 
 The full deployment log and proof history are in [TESTNET.md](./TESTNET.md).
 
+## Known Hardening Work
+
+- `Automate Lasna coverDebt()`
+  - add a maintenance step that checks the Reactive contract debt before and after rescue cycles and automatically settles it when required.
+
+- `Automate callback-proxy top-ups`
+  - add target-level funding checks for the vault, adapter, and executor before live runs so callback posting does not depend on manual deposits.
+
+- `Make the clean-stack path one-command reproducible`
+  - fold Sepolia deployment, raw Lasna deployment, watcher registration, reserve seeding, callback funding, and proof collection into a single operator script.
+
 ## Demo Dashboard
 
 There is now a buildless Backstop UI for demos and grant reviews:

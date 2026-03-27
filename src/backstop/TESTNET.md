@@ -157,7 +157,7 @@ Use:
 
 This is enough to produce proof-of-concept transaction hashes and show that Reactive is the automation layer driving the rescue flow.
 
-## Aave Sepolia integration attempt
+## Aave Sepolia integration
 
 The repo now contains a second, real-protocol path that uses:
 
@@ -167,7 +167,7 @@ The repo now contains a second, real-protocol path that uses:
 - a Sepolia executor that calls Aave `repay(...)`
 - a second Lasna reactive contract that watches Aave Pool account events
 
-### Live Aave deployment set
+### Initial live Aave deployment set
 
 Date:
 
@@ -208,7 +208,7 @@ Supporting retune transactions:
 - `Top up reserve to 200 USDC`: `0xcd9a094bde10df4302f9c548279f667f1645df164cd85708c3dae5da60f3445e`
 - `Top up executor to 100 USDC`: `0x7696d8659347f663716963f7304f91aa25b641587812e032d8809f754d6bd5ab`
 
-### Current state
+### Initial debugging outcome
 
 What is working:
 
@@ -217,7 +217,7 @@ What is working:
 - the monitored position is below the Backstop threshold on Sepolia
 - the Lasna contracts are deployed, funded, and subscribed
 
-What is still blocked:
+What remained blocked on the initial stack:
 
 - the reserve callback now succeeds after replaying Aave vault state
 - the executor callback is still failing on Sepolia for the Aave path

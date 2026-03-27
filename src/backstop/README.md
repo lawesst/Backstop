@@ -1,29 +1,19 @@
-# Backstop
+# Backstop Technical Overview
 
-Backstop is a liquidation protection system built for Reactive Network.
+Backstop is a Reactive-native liquidation protection system.
 
-This implementation demonstrates the core rescue flow:
+This implementation demonstrates a full rescue loop:
 
-- a user configures liquidation protection on a reserve chain
-- a lending position becomes risky on a debt chain
-- a Reactive Smart Contract detects the risk event
-- the Reactive Smart Contract emits cross-chain callbacks
-- reserve is committed on the reserve chain
-- rescue liquidity repays debt on the debt chain
+- a user configures protection in a reserve-side vault
+- a lending position emits a degraded risk signal
+- a Reactive Smart Contract evaluates policy in ReactVM
+- reserve and rescue callbacks are posted automatically
+- reserve is committed
+- debt is repaid on the lending side
 
-## Why This Matters
+The core point is architectural: Backstop uses Reactive Network to react to third-party protocol events and trigger deterministic follow-up execution without an off-chain keeper.
 
-Traditional smart contracts cannot wake up when a third-party lending position degrades and then coordinate responses across multiple chains on their own.
-
-Backstop uses Reactive's core primitive:
-
-- subscribe to on-chain events
-- process them in ReactVM
-- trigger callback execution automatically
-
-The important thing this project proves is not a production bridge. It proves the event-driven control plane that makes autonomous cross-chain liquidation defense possible.
-
-## Contracts
+## Contract Set
 
 ### Reserve side
 
@@ -75,7 +65,7 @@ The important thing this project proves is not a production bridge. It proves th
 - `MockUSDC.sol`
 - `MockSubscriptionService.sol`
 
-## Flow
+## Rescue Flow
 
 1. A user configures protection for `positionId` in `BackstopVault`.
 2. The user deposits reserve capital into the vault.
@@ -95,13 +85,13 @@ The important thing this project proves is not a production bridge. It proves th
    - `executeRescue(...)` on the debt chain
 7. The reserve side marks funds as committed and the debt side repays part of the loan.
 
-## What Is Mocked In This Version
+## Mocked Scope
 
 - The lending market is simplified to focus on reactive control flow.
 - Rescue liquidity on the debt chain is pre-funded in the executor.
 - Reserve capital on the reserve chain is committed, not bridged.
 
-This is intentional for scope control. It isolates the Reactive logic that makes autonomous liquidation defense possible.
+This is intentional. It isolates the event-driven control plane from bridge, routing, and pooled-liquidity concerns.
 
 ## Local Verification
 
@@ -111,7 +101,7 @@ Run the test suite:
 forge test
 ```
 
-The current tests prove:
+The current tests cover:
 
 - static Reactive subscriptions are registered
 - rescue fires when health factor falls below threshold
@@ -119,30 +109,9 @@ The current tests prove:
 - preview logic reports cooldown correctly
 - the Aave adapter exposes live health-factor and debt reads
 
-## Next Steps
+## Live Aave Proof
 
-- use `ReplayBackstopState.s.sol` to remove manual state re-sync after Lasna deployment
-- use the included testnet deploy scripts for Sepolia + Reactive Lasna
-- integrate a bridge or settlement adapter for reserve-backed replenishment
-- add a minimal web UI for position registration and rescue history
-- make the clean-stack Aave Sepolia rescue path one-command reproducible
-
-## Testnet Wiring
-
-The repo now includes a Sepolia + Reactive Lasna deployment path:
-
-- [TESTNET.md](./TESTNET.md)
-- [DeployBackstopSepolia.s.sol](../../script/DeployBackstopSepolia.s.sol)
-- [DeployBackstopLasna.s.sol](../../script/DeployBackstopLasna.s.sol)
-- [ReplayBackstopState.s.sol](../../script/ReplayBackstopState.s.sol)
-- [TriggerBackstopRisk.s.sol](../../script/TriggerBackstopRisk.s.sol)
-
-The latest live proof run and explorer links are recorded in
-[TESTNET.md](./TESTNET.md).
-
-## Aave Sepolia Path
-
-The repo now also includes a live Aave V3 Sepolia integration path:
+The repo includes a live Aave V3 Sepolia integration path:
 
 - [AaveV3BackstopAdapter.sol](./AaveV3BackstopAdapter.sol)
 - [AaveV3BackstopExecutor.sol](./AaveV3BackstopExecutor.sol)
@@ -150,47 +119,29 @@ The repo now also includes a live Aave V3 Sepolia integration path:
 - [DeployBackstopAaveSepolia.s.sol](../../script/DeployBackstopAaveSepolia.s.sol)
 - [DeployBackstopAaveLasna.s.sol](../../script/DeployBackstopAaveLasna.s.sol)
 - [SetupBackstopAaveSepolia.s.sol](../../script/SetupBackstopAaveSepolia.s.sol)
-- [TriggerBackstopAaveRisk.s.sol](../../script/TriggerBackstopAaveRisk.s.sol)
 - [SyncBackstopAavePosition.s.sol](../../script/SyncBackstopAavePosition.s.sol)
 
-Current status:
+Successful clean-stack proof on March 27, 2026:
 
-- live Sepolia contracts are deployed and funded
-- a real Aave V3 Sepolia borrower is live and tracked by the adapter
-- the position has been driven below the Backstop threshold on Sepolia
-- the fresh clean-stack deployment on March 27, 2026 completed a full end-to-end reserve commit plus Aave repay rescue
-- the older Aave stack is still useful for debugging the original callback gas and debt issues, but it is no longer the only public proof path
+- `syncPosition(...)`: `0x5ddf2ecf3ec382e42cccdae2879d231f550ffaf83629813bf7614455f9cc6ece`
+- `ReserveCommitted` callback: `0xbdb2de69ed59aae282eec72f3390c5380330864b3c8a12a4001097cfcc232d7c`
+- `RescueExecuted` callback: `0x1859c3b12093a21db8dbb351bc36f45070a281c029335996bf5e5efec3ab4242`
 
-Latest diagnosis:
+Clean-stack end state:
 
-- reading `protections(positionId)` on the top-level Lasna contract is a false diagnostic because ReactVM state is separate from the top-level Reactive contract state
-- the right live signals are Sepolia callback transactions, Lasna balance/debt, and RVM execution traces
-- a clean Lasna deploy under a fresh EOA succeeds on-chain when sent as a raw `CREATE`; Foundry's local constructor execution falsely reverts on `service.subscribe(...)`
-- Aave Sepolia `Borrow` events surface the tracked user in `topic_2`, so the monitor now subscribes to both `topic_2` and `topic_3`
-- the first clean-stack executor callback failed because it landed in the same Sepolia block before `fundLiquidity(...)` was mined
-- a second clean-stack retry stalled because the Lasna Backstop contract had accrued system debt and needed `coverDebt()`
-- after re-funding the Sepolia callback proxy targets, covering Lasna debt, and re-running `syncPosition(...)`, the clean-stack Sepolia callbacks both succeeded
-- the successful clean-stack rescue proof set is:
-  - `syncPosition(...)`: `0x5ddf2ecf3ec382e42cccdae2879d231f550ffaf83629813bf7614455f9cc6ece`
-  - `ReserveCommitted` callback: `0xbdb2de69ed59aae282eec72f3390c5380330864b3c8a12a4001097cfcc232d7c`
-  - `RescueExecuted` callback: `0x1859c3b12093a21db8dbb351bc36f45070a281c029335996bf5e5efec3ab4242`
-- the resulting Sepolia end state is:
-  - vault `availableReserve = 0`
-  - vault `committedReserve = 50,000,000`
-  - executor liquidity `= 0`
-  - borrower variable debt reduced by about `25,000,000`
+- vault `availableReserve = 0`
+- vault `committedReserve = 50,000,000`
+- executor liquidity `= 0`
+- borrower variable debt reduced by about `25,000,000`
 
-That means the protocol integration work is real and reusable, and the next engineering pass is straightforward:
+Implementation notes from the live path:
 
-- fold the raw-create Lasna path into a repeatable deployment script
-- automate callback-proxy top-ups and Lasna `coverDebt()` before reruns
-- preserve the patched monitor subscriptions on all future Aave deployments
-- add UI proof links for the clean-stack reserve and rescue callbacks
+- raw Lasna deployment works reliably when constructor simulation is bypassed
+- Aave `Borrow` monitoring must handle both `topic_2` and `topic_3`
+- callback ordering matters on Sepolia
+- Lasna system debt must be covered before repeated rescue cycles
 
-Useful debugging scripts:
-
-- [InspectBackstopAaveState.s.sol](../../script/InspectBackstopAaveState.s.sol)
-- [CoverBackstopReactiveDebt.s.sol](../../script/CoverBackstopReactiveDebt.s.sol)
+The full deployment log and proof history are in [TESTNET.md](./TESTNET.md).
 
 ## Demo Dashboard
 
@@ -218,3 +169,11 @@ The dashboard:
   - replay protection
   - replay reserve
   - sync position
+
+## Runbooks
+
+- primary testnet runbook: [TESTNET.md](./TESTNET.md)
+- Sepolia + Lasna deploy scripts live under `script/`
+- useful inspection helpers:
+  - [InspectBackstopAaveState.s.sol](../../script/InspectBackstopAaveState.s.sol)
+  - [CoverBackstopReactiveDebt.s.sol](../../script/CoverBackstopReactiveDebt.s.sol)

@@ -311,7 +311,60 @@ Fresh findings:
 
 - Foundry's local constructor execution falsely reverts on `service.subscribe(...)` for fresh Lasna deploys, but the raw on-chain `CREATE` path succeeds.
 - The Aave Sepolia `Borrow(address,address,address,uint256,uint8,uint256,uint16)` log that matters for user tracking exposes the borrower in `topic_2`; the original monitor only subscribed to `topic_3`.
-- The patched monitor is now covered by tests, but the fresh live stack still needs one more Lasna-side fix: after `syncPosition(...)` emits `HealthFactorUpdated` on Sepolia, the fresh Backstop RSC still does not post Sepolia callback transactions.
+- The first fresh executor callback failed because it arrived before `fundLiquidity(...)` landed in the same Sepolia block.
+- The next fresh retry stalled because the Lasna Backstop contract had accumulated system debt and needed `coverDebt()`.
+
+### Fresh clean-stack full rescue
+
+This is the fresh stack that completed the first full live Aave rescue.
+
+Fresh deployer:
+
+- `Sepolia + Lasna EOA`: `0x5508532b027D57b020e6C0BeDB1fE19a6d6C555c`
+
+Fresh Sepolia contracts:
+
+- `BackstopVault`: `0x5C3C4593a23040a2b069Bc4DdF6eD95b4D11dc3d`
+- `AaveV3BackstopAdapter`: `0xffB6ebd0ab6730F43980218eA43727Acc90D7906`
+- `AaveV3BackstopExecutor`: `0x14B4AFBc9677f1AF954c3B4f9a5152bb2c31981a`
+
+Fresh Lasna contracts:
+
+- `BackstopReactiveContract` raw deploy: `0xEC11dB01703C90055c9bD382d7DB74DeD6DD08C8`
+- `AavePositionMonitorReactiveContract` raw deploy: `0xC61Ac5bd830858a5ceE607D2bde2D472824B3a06`
+
+Fresh clean-stack proof transactions:
+
+- `Sepolia deploy BackstopVault`: `0x67864d0f9bd7181905b93225af36efa549d9ffd98a76e356309a37dec4f84c24`
+- `Sepolia deploy AaveV3BackstopAdapter`: `0x6ff2f912a2ecb76af1a1fc42ec1020332e8cff322cab15d8d20f059fc1c03af2`
+- `Sepolia deploy AaveV3BackstopExecutor`: `0xe362115550eee2c99ae4e7fc191c74060c08d4197ce754234e3f6119c3971ddc`
+- `Lasna deploy BackstopReactiveContract`: `0x8c3b273b3dd70301816d54fad9ac8513dffe47c00493da4fcb0a0deb55ac5bb3`
+- `Lasna deploy Aave monitor`: `0x4dc33455ff4e8c6d09c87e093290de2d2a924aed40bd1707ffab0d3ed52c9e85`
+- `Lasna watchAccount`: `0x665584675bd20e0eeb19de3f65c9a8056093aa0813a440a0a382941cb2ad990e`
+- `Sepolia mint fresh USDC`: `0xaa45fb1a55b81803b8b6c66c3ebe2594b4fc6627622da61a5bf5c22f0b4a9f10`
+- `Sepolia configure protection`: `0x69bb36dce12b37c4f3fca38d2a834fc691d908fe160c0b70020fd17fd1b5e008`
+- `Sepolia deposit reserve`: `0x08dec3c864251675ed08f066a32f44812836e53328056beddd4b1fa01b70f5be`
+- `Sepolia configure Aave adapter`: `0xd12195936fc74ba0591505d1c7bf9e51d034fdb734bfba2c5834ad4b526ec717`
+- `Sepolia fund executor liquidity`: `0xd9af73502887720de7e6bee10586765d2238ccdb0a00bc2f54ae8502f6697208`
+- `Lasna top up Backstop debt reserve`: `0x088a271dd52358eddd238acd9692cbecba8c6d9e190bb362006a52967934f56b`
+- `Lasna cover Backstop debt`: `0x974bd6a2f443451bb84b2092ca113dd34ac034d6f4fbc53b06d4daa5b29c4d08`
+- `Fresh syncPosition that triggered the successful rescue`: `0x5ddf2ecf3ec382e42cccdae2879d231f550ffaf83629813bf7614455f9cc6ece`
+- `Fresh reserve commit callback`: `0xbdb2de69ed59aae282eec72f3390c5380330864b3c8a12a4001097cfcc232d7c`
+- `Fresh rescue execution callback`: `0x1859c3b12093a21db8dbb351bc36f45070a281c029335996bf5e5efec3ab4242`
+
+Observed clean-stack end state:
+
+- `vault available reserve`: `0`
+- `vault committed reserve`: `50,000,000`
+- `executor liquidity`: `0`
+- borrower variable debt dropped from about `2,000,511,227` to about `1,975,519,497`
+
+Key clean-stack lessons:
+
+- raw Lasna deployment is reliable once constructor simulation is bypassed
+- Sepolia operation ordering matters; `fundLiquidity(...)` must land before the callback is posted
+- the Lasna Backstop contract must keep its system debt covered before additional rescue cycles
+- small callback-proxy top-ups are enough to re-prime the Sepolia callback targets for repeat runs
 
 ## Latest public proof run
 

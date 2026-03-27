@@ -94,11 +94,16 @@ The contract-level design and project-specific notes live in:
 
 ## Current Live Status
 
-- The original Aave path proved live reserve callbacks on Sepolia and narrowed the rescue failure to executor callback gas budgeting.
-- A fresh clean-stack deployment proved raw on-chain Lasna deployment works and uncovered an Aave borrow-topic bug in the monitor, which is now fixed in code and covered by tests.
-- The earlier “missing mirrored state” read was a false signal: ReactVM state is separate from the top-level Lasna contract storage.
-- The current live blocker on the older Aave Backstop contract is unpaid Lasna debt plus a too-small executor callback gas budget.
-- A fresh Sepolia rerun on March 27, 2026 re-emitted `HealthFactorUpdated` successfully but still produced no new reserve or executor state changes, so the remaining gap is now isolated to the Lasna callback-posting leg.
+- A fresh clean-stack deployment on March 27, 2026 completed a full live Aave V3 Sepolia rescue.
+- The successful clean-stack proof path is:
+  - sync trigger: `0x5ddf2ecf3ec382e42cccdae2879d231f550ffaf83629813bf7614455f9cc6ece`
+  - reserve commit callback: `0xbdb2de69ed59aae282eec72f3390c5380330864b3c8a12a4001097cfcc232d7c`
+  - rescue execution callback: `0x1859c3b12093a21db8dbb351bc36f45070a281c029335996bf5e5efec3ab4242`
+- The clean-stack run also proved:
+  - raw on-chain Lasna `CREATE` works when Foundry constructor simulation falsely reverts on `service.subscribe(...)`
+  - the Aave monitor must subscribe to both `Borrow` `topic_2` and `topic_3`
+  - the Reactive contract must keep its Lasna system debt covered before subsequent rescue cycles
+- The older Aave stack remains useful as a debugging trail for callback gas and debt-management issues, but the project now has a real end-to-end Sepolia proof set.
 - The repo now includes targeted debugging helpers:
   - `script/InspectBackstopAaveState.s.sol`
   - `script/CoverBackstopReactiveDebt.s.sol`

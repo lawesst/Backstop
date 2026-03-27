@@ -122,10 +122,10 @@ The current tests prove:
 ## Next Steps
 
 - use `ReplayBackstopState.s.sol` to remove manual state re-sync after Lasna deployment
-- finish the last mile of the Aave Sepolia reactive callback path
 - use the included testnet deploy scripts for Sepolia + Reactive Lasna
 - integrate a bridge or settlement adapter for reserve-backed replenishment
 - add a minimal web UI for position registration and rescue history
+- make the clean-stack Aave Sepolia rescue path one-command reproducible
 
 ## Testnet Wiring
 
@@ -158,31 +158,34 @@ Current status:
 - live Sepolia contracts are deployed and funded
 - a real Aave V3 Sepolia borrower is live and tracked by the adapter
 - the position has been driven below the Backstop threshold on Sepolia
-- the reserve callback leg is now confirmed live on Sepolia
-- a second clean-stack deployment now exists under a fresh Sepolia + Lasna EOA
-- the remaining blockers are:
-- the executor callback gas budget on the original Aave rescue leg
-- a fresh Lasna-side ingestion/runtime issue after the adapter emits `HealthFactorUpdated`
+- the fresh clean-stack deployment on March 27, 2026 completed a full end-to-end reserve commit plus Aave repay rescue
+- the older Aave stack is still useful for debugging the original callback gas and debt issues, but it is no longer the only public proof path
 
 Latest diagnosis:
 
 - reading `protections(positionId)` on the top-level Lasna contract is a false diagnostic because ReactVM state is separate from the top-level Reactive contract state
 - the right live signals are Sepolia callback transactions, Lasna balance/debt, and RVM execution traces
-- replaying the Aave vault state and forcing a fresh `syncPosition(...)` produced a live `ReserveCommitted` callback on Sepolia
-- the paired executor callback was dispatched by the Sepolia callback proxy but failed with `CallbackFailure(address,bytes)`
-- simulating `executeRescue(...)` against the live executor succeeds once the gas cap reaches about `300k`
-- the current Aave Lasna deploy used a `500k` callback gas budget, which appears too tight once proxy overhead is included
-- a fresh `syncPosition(...)` rerun on March 27, 2026 emitted `HealthFactorUpdated` on Sepolia again, but the reserve and executor balances remained unchanged afterward
 - a clean Lasna deploy under a fresh EOA succeeds on-chain when sent as a raw `CREATE`; Foundry's local constructor execution falsely reverts on `service.subscribe(...)`
 - Aave Sepolia `Borrow` events surface the tracked user in `topic_2`, so the monitor now subscribes to both `topic_2` and `topic_3`
-- after a manual Sepolia `syncPosition(...)` on the fresh stack, the adapter emits `HealthFactorUpdated` but the fresh Backstop RSC still does not post Sepolia reserve/executor callbacks
+- the first clean-stack executor callback failed because it landed in the same Sepolia block before `fundLiquidity(...)` was mined
+- a second clean-stack retry stalled because the Lasna Backstop contract had accrued system debt and needed `coverDebt()`
+- after re-funding the Sepolia callback proxy targets, covering Lasna debt, and re-running `syncPosition(...)`, the clean-stack Sepolia callbacks both succeeded
+- the successful clean-stack rescue proof set is:
+  - `syncPosition(...)`: `0x5ddf2ecf3ec382e42cccdae2879d231f550ffaf83629813bf7614455f9cc6ece`
+  - `ReserveCommitted` callback: `0xbdb2de69ed59aae282eec72f3390c5380330864b3c8a12a4001097cfcc232d7c`
+  - `RescueExecuted` callback: `0x1859c3b12093a21db8dbb351bc36f45070a281c029335996bf5e5efec3ab4242`
+- the resulting Sepolia end state is:
+  - vault `availableReserve = 0`
+  - vault `committedReserve = 50,000,000`
+  - executor liquidity `= 0`
+  - borrower variable debt reduced by about `25,000,000`
 
-That means the protocol integration work is real and reusable, and the next live attempt is straightforward:
+That means the protocol integration work is real and reusable, and the next engineering pass is straightforward:
 
-- redeploy the Aave Backstop reactive contract with a higher callback gas limit
-- use the patched monitor on the next clean deployment
-- continue debugging the fresh Lasna Backstop ingestion/runtime path after normalized adapter events
-- keep Lasna Backstop debt covered before replaying or rerunning the live rescue path
+- fold the raw-create Lasna path into a repeatable deployment script
+- automate callback-proxy top-ups and Lasna `coverDebt()` before reruns
+- preserve the patched monitor subscriptions on all future Aave deployments
+- add UI proof links for the clean-stack reserve and rescue callbacks
 
 Useful debugging scripts:
 
